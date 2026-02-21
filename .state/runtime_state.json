@@ -1,12 +1,1 @@
-{
-  "heal_count": 1,
-  "extra_apply_hints": [
-    "continue"
-  ],
-  "extra_submit_hints": [
-    "confirm"
-  ],
-  "extra_success_markers": [
-    "thanks for applying"
-  ]
-}
+{"heal_count":0,"extra_apply_hints":[],"extra_submit_hints":[],"extra_success_markers":[]}
