@@ -1056,6 +1056,24 @@ async def worker(
                 page.on("console", _on_console)
 
                 try:
+                    # Monkey-patch fetch to log outgoing requests
+                    if "bamboohr" in page.url:
+                        await safe_eval(page, """() => {
+                            if (!window.__submitLog) {
+                                window.__submitLog = [];
+                                const origFetch = window.fetch;
+                                window.fetch = function(...args) {
+                                    window.__submitLog.push({type: 'fetch', url: String(args[0]).substring(0, 100), method: args[1]?.method || 'GET'});
+                                    return origFetch.apply(this, args);
+                                };
+                                const origXhrOpen = XMLHttpRequest.prototype.open;
+                                XMLHttpRequest.prototype.open = function(method, url) {
+                                    window.__submitLog.push({type: 'xhr', url: String(url).substring(0, 100), method: method});
+                                    return origXhrOpen.apply(this, arguments);
+                                };
+                            }
+                        }""", None)
+
                     # Tier 1: Playwright native click (most reliable for React)
                     try:
                         submit_btn = page.locator('button[type="submit"]')
@@ -1094,6 +1112,21 @@ async def worker(
                         print(f"  [SUBMIT-NET] No POST requests detected — form may not have submitted", flush=True)
                     for cm in console_msgs[:5]:
                         print(f"  [CONSOLE] {cm}", flush=True)
+                    # Check fetch/XHR monkey-patch log
+                    if "bamboohr" in page.url:
+                        fetch_log = await safe_eval(page, "() => JSON.stringify(window.__submitLog || [])", "[]")
+                        print(f"  [FETCH-LOG] {fetch_log}", flush=True)
+                        # Also check for visible validation errors after submit attempt
+                        vis_errors = await safe_eval(page, """() => {
+                            const errs = [];
+                            document.querySelectorAll('[class*="error"], [class*="Error"], [role="alert"]').forEach(el => {
+                                const txt = (el.innerText || '').trim();
+                                if (txt && txt.length < 200) errs.push(txt);
+                            });
+                            return errs.slice(0, 10);
+                        }""", [])
+                        if vis_errors:
+                            print(f"  [VIS-ERRORS] {vis_errors}", flush=True)
 
                 finally:
                     page.remove_listener("response", _on_resp)
