@@ -33,6 +33,8 @@ STRICT_TEXT_MARKERS = [
     "thank you for applying",
     "thanks for applying",
     "your application has been submitted",
+    "your application was submitted",
+    "application was submitted successfully",
     "we have received your application",
     "we received your application",
     "application number",
@@ -70,6 +72,8 @@ COMPAT_MAP: dict[str, list[str]] = {
     ],
     "application submitted": [
         "your application has been submitted",
+        "your application was submitted",
+        "application was submitted successfully",
         "application submitted successfully",
         "your application was successfully submitted",
     ],
@@ -164,6 +168,10 @@ INJECT_HELPER_JS = r"""
   function setVal(el, value) {
     if (!el || value === undefined || value === null || value === '') return false;
     if (el.disabled || el.readOnly) return false;
+    // Skip honeypot fields (anti-bot traps)
+    if (el.tabIndex === -1) return false;
+    const closestHidden = el.closest('[aria-hidden="true"]');
+    if (closestHidden) return false;
     const tag = (el.tagName || '').toLowerCase();
     const type = norm(el.getAttribute('type'));
     if (type === 'hidden' || type === 'file') return false;
@@ -1003,6 +1011,19 @@ async def worker(
                                 }}""", False)
 
                 await js_wait(page, 300)
+
+                # Clear any honeypot fields (anti-bot traps)
+                await safe_eval(page, """() => {
+                    document.querySelectorAll('[aria-hidden="true"] input, input[tabindex="-1"]').forEach(inp => {
+                        if (inp.value) {
+                            const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+                            if (setter) setter.call(inp, '');
+                            else inp.value = '';
+                            inp.dispatchEvent(new Event('input', {bubbles: true}));
+                            inp.dispatchEvent(new Event('change', {bubbles: true}));
+                        }
+                    });
+                }""", None)
 
                 # React state diagnostic: check what React thinks each field contains
                 if "bamboohr" in page.url:
