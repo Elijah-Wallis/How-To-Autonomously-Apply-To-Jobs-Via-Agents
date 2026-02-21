@@ -7,7 +7,7 @@
 {
   "self_heal": true,
   "state": {
-    "heal_count": 8,
+    "heal_count": 9,
     "extra_apply_hints": [
       "continue",
       "next",
