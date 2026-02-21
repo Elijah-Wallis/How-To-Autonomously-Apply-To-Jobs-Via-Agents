@@ -1,0 +1,67 @@
+  [SUBMIT-T2] requestSubmit result: requestSubmit_ok
+  [REACT-DIAG] {'error': 'no_form'}
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-NET] POST 200 https://kiewitcareers.kiewit.com/services/jobs/options/facetValues/
+  [CONSOLE] [warning] [JavaScript Warning: "Loading failed for the <script> with source “https://www.googletagmanager.com/gtm.js?id=GTM-TNVG2FN”." {file: "https://kiewitcareers.kiewit.com/Weeks/search/?createNewAlert=false
+  [SUBMIT-T2] requestSubmit result: requestSubmit_ok
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [FETCH-LOG] []
+  [REACT-DIAG] {'error': 'no_form'}
+  [SUBMIT-NET] POST 200 https://kiewitcareers.kiewit.com/services/jobs/options/facetValues/
+  [CONSOLE] [warning] [JavaScript Warning: "Loading failed for the <script> with source “https://www.googletagmanager.com/gtm.js?id=GTM-TNVG2FN”." {file: "https://kiewitcareers.kiewit.com/Weeks/search/?createNewAlert=false
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-T2] requestSubmit result: requestSubmit_ok
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [FETCH-LOG] []
+  [REACT-DIAG] {'error': 'no_form'}
+  [SUBMIT-NET] POST 200 https://kiewitcareers.kiewit.com/services/jobs/options/facetValues/
+  [CONSOLE] [warning] [JavaScript Warning: "Loading failed for the <script> with source “https://www.googletagmanager.com/gtm.js?id=GTM-TNVG2FN”." {file: "https://kiewitcareers.kiewit.com/Weeks/search/?createNewAlert=false
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-T2] requestSubmit result: requestSubmit_ok
+  [SUBMIT-NET] POST 200 https://kiewitcareers.kiewit.com/services/jobs/options/facetValues/
+  [CONSOLE] [warning] [JavaScript Warning: "Loading failed for the <script> with source “https://www.googletagmanager.com/gtm.js?id=GTM-TNVG2FN”." {file: "https://kiewitcareers.kiewit.com/Weeks/search/?createNewAlert=false
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [FETCH-LOG] []
+  [REACT-DIAG] {'error': 'no_form'}
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [FETCH-LOG] []
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-NET] POST 500 https://jobs.ourcareerpages.com/WebComponents/DocumentUploadHandler.aspx
+  [SUBMIT-NET] POST 200 https://jobs.ourcareerpages.com/WebServices/BDHWebServiceDirector.asmx/ProcessRequest
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [SUBMIT-NET] POST 200 https://jobs.ourcareerpages.com/WebComponents/DocumentUploadHandler.aspx
+  [SUBMIT-NET] POST 200 https://jobs.ourcareerpages.com/WebServices/BDHWebServiceDirector.asmx/ProcessRequest
+  [SUBMIT-NET] POST 200 https://jobs.ourcareerpages.com/WebComponents/DocumentUploadHandler.aspx
+  [SUBMIT-NET] POST 200 https://jobs.ourcareerpages.com/WebServices/BDHWebServiceDirector.asmx/ProcessRequest
+  [SUBMIT-NET] POST 500 https://jobs.ourcareerpages.com/WebComponents/DocumentUploadHandler.aspx
+  [SUBMIT-NET] POST 200 https://jobs.ourcareerpages.com/WebComponents/DocumentUploadHandler.aspx
+  [SUBMIT-NET] POST 200 https://northcentralus-0.in.applicationinsights.azure.com/v2/track
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-NET] POST 200 https://jobs.ourcareerpages.com/WebServices/BDHWebServiceDirector.asmx/ProcessRequest
+  [SUBMIT-NET] POST 500 https://jobs.ourcareerpages.com/WebComponents/DocumentUploadHandler.aspx
+  [SUBMIT-NET] POST 200 https://jobs.ourcareerpages.com/WebComponents/DocumentUploadHandler.aspx
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-NET] POST 200 https://jobs.ourcareerpages.com/WebComponents/DocumentUploadHandler.aspx
+  [SUBMIT-NET] POST 200 https://jobs.ourcareerpages.com/WebServices/BDHWebServiceDirector.asmx/ProcessRequest
+  [SUBMIT-NET] POST 200 https://northcentralus-0.in.applicationinsights.azure.com/v2/track
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-T2] requestSubmit result: requestSubmit_ok
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [SUBMIT-T2] requestSubmit result: requestSubmit_ok
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [SUBMIT-T2] requestSubmit result: requestSubmit_ok
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [SUBMIT-T2] requestSubmit result: requestSubmit_ok
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [SUBMIT-NET] No POST requests detected — form may not have submitted

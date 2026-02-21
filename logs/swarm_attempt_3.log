@@ -27,31 +27,28 @@
   [SUBMIT-NET] POST 200 https://kiewitcareers.kiewit.com/services/jobs/options/facetValues/
   [CONSOLE] [warning] [JavaScript Warning: "Loading failed for the <script> with source “https://www.googletagmanager.com/gtm.js?id=GTM-TNVG2FN”." {file: "https://kiewitcareers.kiewit.com/Weeks/search/?createNewAlert=false
   [SUBMIT-T2] requestSubmit result: no_form_found
-  [SUBMIT-NET] POST 204 https://panorama.wixapps.net/api/v1/bulklog
-  [SUBMIT-NET] POST 204 https://panorama.wixapps.net/api/v1/bulklog
-  [SUBMIT-NET] GET 404 https://www.mansonconstruction.com/_api/ecom-cart/v1/carts/current
-  [SUBMIT-NET] GET 200 https://www.mansonconstruction.com/_api/wix-ecommerce-storefront-web/api?o=getConfig&s=WixStoresWebClient&q=query,getCon
-  [SUBMIT-NET] POST 204 https://panorama.wixapps.net/api/v1/bulklog
-  [SUBMIT-NET] POST 204 https://frog.wix.com/bolt-performance
-  [SUBMIT-NET] POST 204 https://frog.wix.com/bpm
-  [SUBMIT-NET] POST 204 https://frog.wix.com/bolt-performance
-  [SUBMIT-NET] POST 204 https://frog.wix.com/bolt-performance
-  [SUBMIT-NET] POST 204 https://panorama.wixapps.net/api/v1/bulklog
-  [SUBMIT-NET] POST 204 https://frog.wix.com/bolt-performance
-  [SUBMIT-NET] POST 200 https://sentry-next.wixpress.com/api/13169/store/?sentry_key=a49da440f96748c7842c6c24ab759ce9&sentry_version=7
-  [SUBMIT-NET] GET 200 https://static.parastorage.com/services/wix-thunderbolt/dist/seo-api.f4c87867.chunk.min.js
-  [SUBMIT-NET] POST 204 https://frog.wix.com/bolt-performance
-  [SUBMIT-NET] POST 204 https://panorama.wixapps.net/api/v1/bulklog
-  [SUBMIT-NET] POST 204 https://frog.wix.com/bolt-performance
-  [SUBMIT-NET] POST 204 https://panorama.wixapps.net/api/v1/bulklog
-  [SUBMIT-NET] POST 204 https://panorama.wixapps.net/api/v1/bulklog
-  [SUBMIT-NET] POST 204 https://panorama.wixapps.net/api/v1/bulklog
-  [SUBMIT-NET] POST 204 https://frog.wix.com/bolt-performance
-  [CONSOLE] [error] [JavaScript Error: "Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://static.wixstatic.com/shapes/312ce5_e1508f02d02e48aea506b8cf390b201d.svg. (Reas
-  [CONSOLE] [error] [JavaScript Error: "Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://static.wixstatic.com/shapes/f95e4c_66fee6403ba3433ba2121a965a67c2a6.svg. (Reas
-  [CONSOLE] [error] [JavaScript Error: "Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://static.wixstatic.com/shapes/f95e4c_928c22e45c4d4e00b73ea8a8208a1970.svg. (Reas
-  [CONSOLE] [error] [JavaScript Error: "Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://static.wixstatic.com/shapes/f95e4c_2cc011e7cff64c92bddc9e043ea4b6f1.svg. (Reas
-  [CONSOLE] [error] [JavaScript Error: "Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://static.wixstatic.com/shapes/f95e4c_35494eca89824e029a553e7eb24521f1.svg. (Reas
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [SUBMIT-T2] requestSubmit result: requestSubmit_ok
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-NET] POST 500 https://jobs.ourcareerpages.com/jobapplication/958904?appSource=jobView&jobSource=MansonConstructionCo&culture=en
+  [SUBMIT-NET] POST 200 https://northcentralus-0.in.applicationinsights.azure.com/v2/track
+  [CONSOLE] [warning] [JavaScript Warning: "Form contains a file input, but is missing method=POST and enctype=multipart/form-data on the form.  The file will not be sent." {file: "debugger eval code line 290 > eval" line:
+  [CONSOLE] [error] [JavaScript Error: "Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://use.typekit.net/af/c908ef/0000000000000000000148f7/27/l?primer=7cdcb44be4a7db8
+  [CONSOLE] [error] [JavaScript Error: "Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://use.typekit.net/af/3e4346/0000000000000000000148f0/27/l?primer=7cdcb44be4a7db8
+  [CONSOLE] [error] [JavaScript Error: "downloadable font: download failed (font-family: "soleil" style:italic weight:700 stretch:100 src index:0): bad URI or cross-site access not allowed source: https://use.typekit.net
+  [CONSOLE] [error] [JavaScript Error: "downloadable font: download failed (font-family: "soleil" style:italic weight:400 stretch:100 src index:0): bad URI or cross-site access not allowed source: https://use.typekit.net
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [SUBMIT-T2] requestSubmit result: no_form_found
   [SUBMIT-NET] No POST requests detected — form may not have submitted
   [SUBMIT-T2] requestSubmit result: requestSubmit_ok
   [SUBMIT-T2] requestSubmit result: no_form_found
@@ -65,51 +62,31 @@
   [SUBMIT-T2] requestSubmit result: no_form_found
   [SUBMIT-NET] No POST requests detected — form may not have submitted
   [SUBMIT-NET] No POST requests detected — form may not have submitted
-  [SUBMIT-T2] requestSubmit result: no_form_found
-  [SUBMIT-T2] requestSubmit result: no_form_found
-  [SUBMIT-NET] No POST requests detected — form may not have submitted
-  [SUBMIT-NET] No POST requests detected — form may not have submitted
-  [CONSOLE] [warning] [JavaScript Warning: "The resource at “https://mwdredging.comwp-content/uploads/2022/02/MuddyWater-logo-tag-reversed.png” preloaded with link preload was not used within a few seconds. Make sure all a
-  [CONSOLE] [warning] [JavaScript Warning: "The resource at “https://mwdredging.com/wp-content/uploads/themify-concate/3259459140/themify-3737025575.css” preloaded with link preload was not used within a few seconds. Make 
-  [SUBMIT-T2] requestSubmit result: no_form_found
-  [SUBMIT-T2] requestSubmit result: no_form_found
-  [SUBMIT-NET] No POST requests detected — form may not have submitted
-  [SUBMIT-NET] No POST requests detected — form may not have submitted
-  [SUBMIT-T2] requestSubmit result: no_form_found
-  [SUBMIT-T2] requestSubmit result: no_form_found
-  [SUBMIT-NET] No POST requests detected — form may not have submitted
-  [SUBMIT-NET] No POST requests detected — form may not have submitted
-  [SUBMIT-T2] requestSubmit result: no_form_found
-  [SUBMIT-T2] requestSubmit result: no_form_found
-  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [SUBMIT-T2] requestSubmit result: requestSubmit_ok
   [SUBMIT-NET] No POST requests detected — form may not have submitted
   [SUBMIT-T2] requestSubmit result: no_form_found
   [SUBMIT-NET] GET 200 https://fonts.googleapis.com/css?family=Merriweather:400,400i|Roboto:300,300i,400,400i,500,500i,700,700i,900,900i&displa
   [CONSOLE] [warning] [JavaScript Warning: "Layout was forced before the page was fully loaded. If stylesheets are not yet loaded this may cause a flash of unstyled content." {file: "https://www.morantug.com/includes/tween
   [CONSOLE] [warning] [JavaScript Warning: "Loading failed for the <script> with source “https://www.googletagmanager.com/gtag/js?id=G-Q2W4GMQEJ4”." {file: "https://www.morantug.com/careers-at-moran/how-to-apply/" line: 41
+  [CONSOLE] [error] [JavaScript Error: "Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBHMdazQ.wof
   [CONSOLE] [error] [JavaScript Error: "Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBHMdazQ.wof
   [CONSOLE] [error] [JavaScript Error: "downloadable font: download failed (font-family: "Roboto" style:normal weight:900 stretch:100 src index:0): bad URI or cross-site access not allowed source: https://fonts.gstatic.c
-  [CONSOLE] [error] [JavaScript Error: "Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBHMdazQ.wof
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-NET] GET 200 https://fonts.googleapis.com/css?family=Merriweather:400,400i|Roboto:300,300i,400,400i,500,500i,700,700i,900,900i&displa
+  [SUBMIT-NET] POST 200 https://www.morantug.com/cdn-cgi/challenge-platform/h/g/jsd/oneshot/60138c04e6b2/0.9941957029819531:1771662390:PIbMkBnRv
+  [CONSOLE] [error] [JavaScript Error: "Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://kit.fontawesome.com/47f39e11de.css. (Reason: CORS request did not succeed). St
+  [CONSOLE] [error] [JavaScript Error: "Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://code.jquery.com/jquery-3.7.1.min.js. (Reason: CORS request did not succeed). S
+  [CONSOLE] [error] [JavaScript Error: "None of the “sha256” hashes in the integrity attribute match the content of the subresource at “https://code.jquery.com/jquery-3.7.1.min.js”. The computed hash is “47DEQpj8HBSa+/TI
+  [CONSOLE] [warning] [JavaScript Warning: "Layout was forced before the page was fully loaded. If stylesheets are not yet loaded this may cause a flash of unstyled content." {file: "https://www.morantug.com/includes/tween
+  [CONSOLE] [warning] [JavaScript Warning: "Loading failed for the <script> with source “https://www.googletagmanager.com/gtag/js?id=G-Q2W4GMQEJ4”." {file: "https://www.morantug.com/careers-at-moran/how-to-apply/" line: 41
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
   [SUBMIT-T2] requestSubmit result: no_form_found
   [SUBMIT-NET] GET 200 https://fonts.googleapis.com/css?family=Merriweather:400,400i|Roboto:300,300i,400,400i,500,500i,700,700i,900,900i&displa
   [CONSOLE] [warning] [JavaScript Warning: "Layout was forced before the page was fully loaded. If stylesheets are not yet loaded this may cause a flash of unstyled content." {file: "https://www.morantug.com/includes/tween
   [CONSOLE] [warning] [JavaScript Warning: "Loading failed for the <script> with source “https://www.googletagmanager.com/gtag/js?id=G-Q2W4GMQEJ4”." {file: "https://www.morantug.com/careers-at-moran/how-to-apply/" line: 41
   [CONSOLE] [error] [JavaScript Error: "Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBHMdazQ.wof
-  [CONSOLE] [error] [JavaScript Error: "downloadable font: download failed (font-family: "Roboto" style:normal weight:900 stretch:100 src index:0): bad URI or cross-site access not allowed source: https://fonts.gstatic.c
   [CONSOLE] [error] [JavaScript Error: "Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBHMdazQ.wof
-  [SUBMIT-T2] requestSubmit result: no_form_found
-  [SUBMIT-NET] GET 200 https://fonts.googleapis.com/css?family=Merriweather:400,400i|Roboto:300,300i,400,400i,500,500i,700,700i,900,900i&displa
-  [CONSOLE] [warning] [JavaScript Warning: "Layout was forced before the page was fully loaded. If stylesheets are not yet loaded this may cause a flash of unstyled content." {file: "https://www.morantug.com/includes/tween
-  [CONSOLE] [warning] [JavaScript Warning: "Loading failed for the <script> with source “https://www.googletagmanager.com/gtag/js?id=G-Q2W4GMQEJ4”." {file: "https://www.morantug.com/careers-at-moran/how-to-apply/" line: 41
-  [CONSOLE] [error] [JavaScript Error: "Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBHMdazQ.wof
-  [CONSOLE] [error] [JavaScript Error: "Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBHMdazQ.wof
-  [CONSOLE] [error] [JavaScript Error: "Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBHMdazQ.wof
-  [SUBMIT-T2] requestSubmit result: no_form_found
-  [SUBMIT-NET] GET 200 https://fonts.googleapis.com/css?family=Merriweather:400,400i|Roboto:300,300i,400,400i,500,500i,700,700i,900,900i&displa
-  [CONSOLE] [warning] [JavaScript Warning: "Layout was forced before the page was fully loaded. If stylesheets are not yet loaded this may cause a flash of unstyled content." {file: "https://www.morantug.com/includes/tween
-  [CONSOLE] [warning] [JavaScript Warning: "Loading failed for the <script> with source “https://www.googletagmanager.com/gtag/js?id=G-Q2W4GMQEJ4”." {file: "https://www.morantug.com/careers-at-moran/how-to-apply/" line: 41
-  [CONSOLE] [error] [JavaScript Error: "Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBHMdazQ.wof
-  [CONSOLE] [error] [JavaScript Error: "downloadable font: download failed (font-family: "Roboto" style:normal weight:900 stretch:100 src index:0): bad URI or cross-site access not allowed source: https://fonts.gstatic.c
   [CONSOLE] [error] [JavaScript Error: "Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBHMdazQ.wof
 {
   "total": 10,
