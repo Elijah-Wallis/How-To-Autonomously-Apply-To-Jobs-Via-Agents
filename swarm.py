@@ -237,6 +237,29 @@ INJECT_HELPER_JS = r"""
         if (setVal(el, v)) filled += 1;
       }
     }
+
+    // Aggressive state dropdown handler — tries multiple values for state selects
+    const stateValues = ['Texas', 'TX', 'texas', 'tx'];
+    for (const s of Array.from(document.querySelectorAll('select'))) {
+      const d = desc(s);
+      if (!(d.includes('state') || d.includes('province') || d.includes('region'))) continue;
+      if (s.value && s.value !== '' && s.selectedIndex > 0) continue; // Already set
+      const opts = Array.from(s.options || []);
+      for (const tryVal of stateValues) {
+        const hit = opts.find(o =>
+          norm(o.textContent) === norm(tryVal) ||
+          norm(o.value) === norm(tryVal) ||
+          norm(o.textContent).includes(norm(tryVal))
+        );
+        if (hit && hit.value !== '') {
+          s.value = hit.value;
+          s.dispatchEvent(new Event('change', { bubbles: true }));
+          filled += 1;
+          break;
+        }
+      }
+    }
+
     return filled;
   }
 
@@ -256,10 +279,12 @@ INJECT_HELPER_JS = r"""
 
   function clickByHints(hints) {
     const hs = (hints || []).map(norm).filter(Boolean);
-    const els = Array.from(document.querySelectorAll("button, a, input[type='submit'], input[type='button'], [role='button']"));
+    // Extended selectors: standard controls + styled containers that act as buttons
+    const sels = "button, a, input[type='submit'], input[type='button'], [role='button'], [class*='btn'], [class*='button'], [class*='cta'], [onclick]";
+    const els = Array.from(document.querySelectorAll(sels));
     for (const el of els) {
       const txt = norm(el.innerText || el.value || el.getAttribute('aria-label') || el.getAttribute('title') || '');
-      if (!txt) continue;
+      if (!txt || txt.length > 200) continue;
       if (hs.some(h => txt.includes(h))) {
         el.focus();
         el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
