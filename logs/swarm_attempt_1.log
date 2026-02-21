@@ -61,3 +61,42 @@
   [SUBMIT-NET] No POST requests detected — form may not have submitted
   [SUBMIT-T2] requestSubmit result: requestSubmit_ok
   [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [SUBMIT-T2] requestSubmit result: requestSubmit_ok
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [CONSOLE] [warning] [JavaScript Warning: "The resource at “https://mwdredging.comwp-content/uploads/2022/02/MuddyWater-logo-tag-reversed.png” preloaded with link preload was not used within a few seconds. Make sure all a
+  [CONSOLE] [warning] [JavaScript Warning: "The resource at “https://mwdredging.com/wp-content/uploads/themify-concate/3259459140/themify-3737025575.css” preloaded with link preload was not used within a few seconds. Make 
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-NET] GET 200 https://fonts.googleapis.com/css?family=Merriweather:400,400i|Roboto:300,300i,400,400i,500,500i,700,700i,900,900i&displa
+  [CONSOLE] [warning] [JavaScript Warning: "Layout was forced before the page was fully loaded. If stylesheets are not yet loaded this may cause a flash of unstyled content." {file: "https://www.morantug.com/includes/tween
+  [CONSOLE] [warning] [JavaScript Warning: "Loading failed for the <script> with source “https://www.googletagmanager.com/gtag/js?id=G-Q2W4GMQEJ4”." {file: "https://www.morantug.com/careers-at-moran/how-to-apply/" line: 41
+  [CONSOLE] [error] [JavaScript Error: "Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBHMdazQ.wof
+  [CONSOLE] [error] [JavaScript Error: "Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBHMdazQ.wof
+  [CONSOLE] [error] [JavaScript Error: "Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBHMdazQ.wof
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-NET] GET 200 https://fonts.googleapis.com/css?family=Merriweather:400,400i|Roboto:300,300i,400,400i,500,500i,700,700i,900,900i&displa
+  [CONSOLE] [warning] [JavaScript Warning: "Layout was forced before the page was fully loaded. If stylesheets are not yet loaded this may cause a flash of unstyled content." {file: "https://www.morantug.com/includes/tween
+  [CONSOLE] [warning] [JavaScript Warning: "Loading failed for the <script> with source “https://www.googletagmanager.com/gtag/js?id=G-Q2W4GMQEJ4”." {file: "https://www.morantug.com/careers-at-moran/how-to-apply/" line: 41
+  [CONSOLE] [error] [JavaScript Error: "Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBHMdazQ.wof
+  [CONSOLE] [error] [JavaScript Error: "downloadable font: download failed (font-family: "Roboto" style:normal weight:900 stretch:100 src index:0): bad URI or cross-site access not allowed source: https://fonts.gstatic.c
+  [CONSOLE] [error] [JavaScript Error: "Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBHMdazQ.wof
+  [SUBMIT-T2] requestSubmit result: no_form_found
