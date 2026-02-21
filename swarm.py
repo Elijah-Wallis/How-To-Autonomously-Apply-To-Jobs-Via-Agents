@@ -307,7 +307,13 @@ INJECT_HELPER_JS = r"""
       if (!txt || txt.length > 200) continue;
       if (hs.some(h => txt.includes(h))) {
         el.focus();
+        el.click();
         el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+        // If this is a submit button, also try form submit
+        if (el.type === 'submit' || txt.includes('submit')) {
+          const form = el.closest('form');
+          if (form && form.requestSubmit) { try { form.requestSubmit(el); } catch(e) {} }
+        }
         return txt;
       }
     }
@@ -836,41 +842,45 @@ async def worker(
                 filled_total = max(filled_total, f2)
                 eeo_total = max(eeo_total, e2)
 
-                # BambooHR Fabric UI: handle custom Select dropdowns (State, etc.)
-                await safe_eval(page, """() => {
-                    // Find all Fabric Select toggle buttons still showing "--Select--"
-                    const toggles = Array.from(document.querySelectorAll('button.fab-SelectToggle, button[data-menu-id]'));
-                    for (const btn of toggles) {
-                        const label = (btn.getAttribute('aria-label') || '').toLowerCase();
-                        if (label.includes('state') && label.includes('select')) {
-                            btn.click();
-                        }
-                    }
-                }""", None)
-                await js_wait(page, 800)
-                # Now click "Texas" in the opened menu
-                await safe_eval(page, """() => {
-                    // Look for open Fabric menus with state options
-                    const items = Array.from(document.querySelectorAll('[role="option"], [role="menuitem"], .fab-MenuOption, li[data-value]'));
-                    for (const item of items) {
-                        const txt = (item.innerText || item.textContent || '').trim();
-                        if (txt === 'Texas' || txt === 'TX') {
-                            item.click();
-                            return true;
-                        }
-                    }
-                    // Fallback: any visible list item matching Texas
-                    const allLi = Array.from(document.querySelectorAll('li, [role="option"]'));
-                    for (const li of allLi) {
-                        const txt = (li.innerText || li.textContent || '').trim();
-                        if (txt === 'Texas') {
-                            li.click();
-                            return true;
-                        }
-                    }
-                    return false;
-                }""", False)
-                await js_wait(page, 500)
+                # BambooHR Fabric UI: handle ALL custom Select dropdowns
+                fabric_selects = [
+                    ('state', ['Texas', 'TX']),
+                    ('gender', ['Decline to Answer', 'Decline']),
+                    ('ethnicity', ['Black or African American', 'Black', 'African American']),
+                    ('race', ['Black or African American', 'Black', 'African American']),
+                    ('disability', ['No', 'Decline to Answer', 'I do not wish to disclose']),
+                ]
+                for field_name, try_values in fabric_selects:
+                    # Open the dropdown
+                    opened = await safe_eval(page, f"""() => {{
+                        const toggles = Array.from(document.querySelectorAll('button.fab-SelectToggle, button[data-menu-id]'));
+                        for (const btn of toggles) {{
+                            const label = (btn.getAttribute('aria-label') || '').toLowerCase();
+                            if (label.includes('{field_name}') && label.includes('select')) {{
+                                btn.click();
+                                return true;
+                            }}
+                        }}
+                        return false;
+                    }}""", False)
+                    if opened:
+                        await js_wait(page, 500)
+                        # Click the matching option
+                        for try_val in try_values:
+                            clicked = await safe_eval(page, f"""() => {{
+                                const items = Array.from(document.querySelectorAll('[role="option"], [role="menuitem"], .fab-MenuOption, li'));
+                                for (const item of items) {{
+                                    const txt = (item.innerText || item.textContent || '').trim();
+                                    if (txt === '{try_val}' || txt.toLowerCase().includes('{try_val.lower()}')) {{
+                                        item.click();
+                                        return true;
+                                    }}
+                                }}
+                                return false;
+                            }}""", False)
+                            if clicked:
+                                await js_wait(page, 300)
+                                break
 
                 await js_wait(page, 300)
 
