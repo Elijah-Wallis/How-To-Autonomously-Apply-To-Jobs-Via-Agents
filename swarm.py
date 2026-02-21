@@ -121,7 +121,8 @@ APPLY_HINTS = [
 SUBMIT_HINTS = [
     "submit", "submit application", "submit my application",
     "finish application", "complete application", "review and submit",
-    "send", "send application",
+    "send", "send application", "save", "save application",
+    "submit your application", "apply", "confirm",
 ]
 NAV_HINTS = [
     "careers", "view our employment", "how to apply", "apply today",
@@ -170,7 +171,10 @@ INJECT_HELPER_JS = r"""
     if (tag === 'select') {
       const want = norm(value);
       const opts = Array.from(el.options || []);
-      const hit = opts.find(o => norm(o.textContent).includes(want) || norm(o.value).includes(want));
+      // Try exact match first, then partial match
+      let hit = opts.find(o => norm(o.textContent) === want || norm(o.value) === want);
+      if (!hit) hit = opts.find(o => norm(o.textContent).includes(want) || norm(o.value).includes(want));
+      if (!hit) hit = opts.find(o => want.includes(norm(o.textContent)) || want.includes(norm(o.value)));
       if (!hit) return false;
       el.value = hit.value;
       el.dispatchEvent(new Event('change', { bubbles: true }));
@@ -776,6 +780,12 @@ async def worker(
                 filled_total = max(filled_total, f)
                 eeo_total = max(eeo_total, e)
                 uploaded_total = max(uploaded_total, await upload_resume(page, resume_path))
+
+                # Second fill pass after short wait (catches async-loaded fields like State dropdowns)
+                await js_wait(page, 800)
+                f2, e2 = await apply_profile(page, profile)
+                filled_total = max(filled_total, f2)
+                eeo_total = max(eeo_total, e2)
 
                 await js_wait(page, 300)
 
