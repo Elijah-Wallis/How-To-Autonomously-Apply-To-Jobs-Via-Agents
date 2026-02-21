@@ -812,6 +812,27 @@ async def worker(
                 filled_total = max(filled_total, f2)
                 eeo_total = max(eeo_total, e2)
 
+                # BambooHR-specific: click the State select to trigger option loading, then set
+                await safe_eval(page, """() => {
+                    const selects = Array.from(document.querySelectorAll('select'));
+                    for (const s of selects) {
+                        const nm = (s.getAttribute('name') || s.getAttribute('id') || '').toLowerCase();
+                        const lbl = s.closest('label');
+                        const lblForId = s.id ? document.querySelector('label[for="' + s.id + '"]') : null;
+                        const lblText = ((lbl ? lbl.innerText : '') + ' ' + (lblForId ? lblForId.innerText : '')).toLowerCase();
+                        if (!(nm.includes('state') || lblText.includes('state'))) continue;
+                        if (s.selectedIndex > 0) continue;
+                        // Click to trigger async option loading
+                        s.focus();
+                        s.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+                        s.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+                    }
+                }""", None)
+                await js_wait(page, 500)
+                # Try again after triggering option load
+                f3, _ = await apply_profile(page, profile)
+                filled_total = max(filled_total, f3)
+
                 await js_wait(page, 300)
 
                 # Try submit
@@ -840,6 +861,18 @@ async def worker(
             proof["filled_count"] = filled_total
             proof["eeo_actions"] = eeo_total
             proof["resume_uploads"] = uploaded_total
+
+            # Capture diagnostic source for all high-fill attempts
+            if filled_total > 3:
+                diag_src = str(await safe_eval(page, "() => window.__SWM2__ ? window.__SWM2__.getPageSource() : ''", "") or "")
+                if diag_src:
+                    dp = SOURCE_DIR / f"{slug}_attempt{attempt}_diag.html"
+                    dp.parent.mkdir(parents=True, exist_ok=True)
+                    try:
+                        dp.write_text(diag_src[:500_000], encoding="utf-8")
+                    except Exception:
+                        pass
+
             if success["ok"]:
                 status = "COMPLETE"
                 detail = "strict_confirmation_verified"
