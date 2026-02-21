@@ -240,6 +240,22 @@ INJECT_HELPER_JS = r"""
       }
     }
 
+    // Handle Yes/No radio questions (work location, legal authorization, etc.)
+    const yesQuestions = ['are you able to work', 'authorized to work', 'legally authorized', 'eligible to work', 'willing to relocate', '18 years'];
+    const noQuestions = ['require sponsorship', 'need visa', 'been convicted'];
+    const radios = Array.from(document.querySelectorAll("input[type='radio']"));
+    for (const r of radios) {
+      const q = desc(r);
+      const labelEl = r.closest('label') || (r.id ? document.querySelector('label[for="' + r.id + '"]') : null);
+      const rText = ((labelEl ? labelEl.innerText : '') + ' ' + (r.value || '')).toLowerCase().trim();
+      if (yesQuestions.some(yq => q.includes(yq)) && (rText.includes('yes') || r.value.toLowerCase() === 'yes')) {
+        r.click(); r.dispatchEvent(new Event('change', { bubbles: true })); filled++;
+      }
+      if (noQuestions.some(nq => q.includes(nq)) && (rText.includes('no') || r.value.toLowerCase() === 'no')) {
+        r.click(); r.dispatchEvent(new Event('change', { bubbles: true })); filled++;
+      }
+    }
+
     // Aggressive state dropdown handler — tries multiple values for state selects
     const stateValues = ['Texas', 'TX', 'texas', 'tx'];
     for (const s of Array.from(document.querySelectorAll('select'))) {
