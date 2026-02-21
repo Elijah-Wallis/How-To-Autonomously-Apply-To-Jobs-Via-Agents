@@ -812,26 +812,41 @@ async def worker(
                 filled_total = max(filled_total, f2)
                 eeo_total = max(eeo_total, e2)
 
-                # BambooHR-specific: click the State select to trigger option loading, then set
+                # BambooHR Fabric UI: handle custom Select dropdowns (State, etc.)
                 await safe_eval(page, """() => {
-                    const selects = Array.from(document.querySelectorAll('select'));
-                    for (const s of selects) {
-                        const nm = (s.getAttribute('name') || s.getAttribute('id') || '').toLowerCase();
-                        const lbl = s.closest('label');
-                        const lblForId = s.id ? document.querySelector('label[for="' + s.id + '"]') : null;
-                        const lblText = ((lbl ? lbl.innerText : '') + ' ' + (lblForId ? lblForId.innerText : '')).toLowerCase();
-                        if (!(nm.includes('state') || lblText.includes('state'))) continue;
-                        if (s.selectedIndex > 0) continue;
-                        // Click to trigger async option loading
-                        s.focus();
-                        s.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
-                        s.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+                    // Find all Fabric Select toggle buttons still showing "--Select--"
+                    const toggles = Array.from(document.querySelectorAll('button.fab-SelectToggle, button[data-menu-id]'));
+                    for (const btn of toggles) {
+                        const label = (btn.getAttribute('aria-label') || '').toLowerCase();
+                        if (label.includes('state') && label.includes('select')) {
+                            btn.click();
+                        }
                     }
                 }""", None)
+                await js_wait(page, 800)
+                # Now click "Texas" in the opened menu
+                await safe_eval(page, """() => {
+                    // Look for open Fabric menus with state options
+                    const items = Array.from(document.querySelectorAll('[role="option"], [role="menuitem"], .fab-MenuOption, li[data-value]'));
+                    for (const item of items) {
+                        const txt = (item.innerText || item.textContent || '').trim();
+                        if (txt === 'Texas' || txt === 'TX') {
+                            item.click();
+                            return true;
+                        }
+                    }
+                    // Fallback: any visible list item matching Texas
+                    const allLi = Array.from(document.querySelectorAll('li, [role="option"]'));
+                    for (const li of allLi) {
+                        const txt = (li.innerText || li.textContent || '').trim();
+                        if (txt === 'Texas') {
+                            li.click();
+                            return true;
+                        }
+                    }
+                    return false;
+                }""", False)
                 await js_wait(page, 500)
-                # Try again after triggering option load
-                f3, _ = await apply_profile(page, profile)
-                filled_total = max(filled_total, f3)
 
                 await js_wait(page, 300)
 
