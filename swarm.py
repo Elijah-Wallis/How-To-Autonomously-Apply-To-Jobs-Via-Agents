@@ -902,44 +902,42 @@ async def worker(
 
                 await js_wait(page, 300)
 
-                # Try submit — multiple strategies
-                await click_hints(page, extra_submit)
-                # Direct submit: JS-based click + Playwright locator fallback for React/MUI buttons
-                await safe_eval(page, """() => {
-                    const buttons = Array.from(document.querySelectorAll('button'));
-                    for (const btn of buttons) {
-                        const txt = (btn.innerText || btn.textContent || '').toLowerCase().trim();
-                        if (txt.includes('submit application') || txt === 'submit') {
-                            btn.scrollIntoView({ behavior: 'instant', block: 'center' });
-                            btn.focus();
-                            // Full event sequence for React compatibility
-                            btn.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
-                            btn.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
-                            btn.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
-                            btn.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
-                            btn.click();
-                            btn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
-                            return true;
-                        }
-                    }
-                    return false;
-                }""", False)
-                await js_wait(page, 500)
-                # Playwright native click — most reliable for React/MUI
+                # Submit — 3-tier strategy: form.requestSubmit(), Playwright click, JS click
                 before_url = page.url
+
+                # Tier 1: Direct form submission (bypasses button click issues)
+                submit_result = await safe_eval(page, """() => {
+                    const form = document.getElementById('job-application-form') || document.querySelector('form');
+                    if (form) {
+                        try { form.requestSubmit(); return 'requestSubmit'; } catch(e) {}
+                        try {
+                            form.dispatchEvent(new Event('submit', {bubbles: true, cancelable: true}));
+                            return 'dispatchSubmit';
+                        } catch(e) {}
+                        try { form.submit(); return 'formSubmit'; } catch(e) {}
+                    }
+                    return 'no_form';
+                }""", "no_form")
+
+                await js_wait(page, 2000)
+
+                # Tier 2: Playwright native click on submit button
                 try:
-                    submit_btn = page.locator('button[type="submit"][form="job-application-form"]')
+                    submit_btn = page.locator('button[type="submit"]')
                     if await submit_btn.count() > 0:
                         await submit_btn.first.click(timeout=5000)
-                    else:
-                        submit_btn = page.locator('button:has-text("Submit Application")')
-                        if await submit_btn.count() > 0:
-                            await submit_btn.first.click(timeout=5000)
                 except Exception:
                     pass
-                # Wait for AJAX submission + confirmation rendering
+
+                await js_wait(page, 2000)
+
+                # Tier 3: JS click with full event sequence
+                await click_hints(page, extra_submit)
+
+                # Wait for AJAX response + confirmation rendering
                 await js_wait(page, 5000)
-                # If URL changed, wait for new page
+
+                # If URL changed, wait for new page to load
                 if page.url != before_url:
                     try:
                         await page.wait_for_load_state("domcontentloaded", timeout=5000)
