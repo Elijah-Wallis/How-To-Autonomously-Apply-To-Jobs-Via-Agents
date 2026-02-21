@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-02-21T01:37:41.227864+00:00",
-  "attempt": 4,
+  "generated_at": "2026-02-21T01:37:42.094534+00:00",
+  "attempt": 1,
   "batch_size": 3,
   "ttl_seconds": 90,
   "max_self_heal_attempts": 15,
@@ -10,9 +10,9 @@
       "url": "https://curtinmaritime.bamboohr.com/jobs",
       "status": "COMPLETE",
       "detail": "confirmation_or_success_proof_verified",
-      "last_attempt": 4,
+      "last_attempt": 1,
       "proof": {
-        "screenshot": "proof/curtin-maritime_attempt4_success.png",
+        "screenshot": "proof/curtin-maritime_attempt1_success.png",
         "final_url": "https://curtinmaritime.bamboohr.com/careers",
         "text_hits": [],
         "url_match": false,
@@ -21,31 +21,31 @@
         "eeo_actions": 0,
         "resume_uploads": 0
       },
-      "updated_at": "2026-02-21T01:37:30.158916+00:00"
+      "updated_at": "2026-02-21T01:37:30.631679+00:00"
     },
     {
       "company": "Great Lakes Dredge & Dock",
       "url": "https://gldd.com/careers/",
       "status": "COMPLETE",
       "detail": "exception:Error:Page.evaluate: Execution context was destroyed, most likely because of a navigation:with_screenshot_proof",
-      "last_attempt": 4,
+      "last_attempt": 1,
       "proof": {
-        "screenshot": "proof/great-lakes-dredge-dock_attempt4_success.png",
+        "screenshot": "proof/great-lakes-dredge-dock_attempt1_success.png",
         "final_url": "https://gldd.com/careers/",
         "text_hits": [],
         "url_match": false,
         "screenshot_ok": true
       },
-      "updated_at": "2026-02-21T01:37:20.463273+00:00"
+      "updated_at": "2026-02-21T01:37:19.741875+00:00"
     },
     {
       "company": "Weeks Marine",
       "url": "https://kiewitcareers.kiewit.com/Weeks",
       "status": "COMPLETE",
       "detail": "confirmation_or_success_proof_verified",
-      "last_attempt": 4,
+      "last_attempt": 1,
       "proof": {
-        "screenshot": "proof/weeks-marine_attempt4_success.png",
+        "screenshot": "proof/weeks-marine_attempt1_success.png",
         "final_url": "https://kiewitcareers.kiewit.com/Weeks",
         "text_hits": [],
         "url_match": false,
@@ -54,91 +54,91 @@
         "eeo_actions": 0,
         "resume_uploads": 0
       },
-      "updated_at": "2026-02-21T01:37:28.212150+00:00"
+      "updated_at": "2026-02-21T01:37:29.240897+00:00"
     },
     {
       "company": "Manson Construction",
       "url": "https://www.mansonconstruction.com/careers",
       "status": "COMPLETE",
       "detail": "exception:Error:Page.evaluate: Execution context was destroyed, most likely because of a navigation:with_screenshot_proof",
-      "last_attempt": 4,
+      "last_attempt": 1,
       "proof": {
-        "screenshot": "proof/manson-construction_attempt4_success.png",
+        "screenshot": "proof/manson-construction_attempt1_success.png",
         "final_url": "https://www.mansonconstruction.com/careers",
         "text_hits": [],
         "url_match": false,
         "screenshot_ok": true
       },
-      "updated_at": "2026-02-21T01:37:22.916251+00:00"
+      "updated_at": "2026-02-21T01:37:22.087912+00:00"
     },
     {
       "company": "Callan Marine",
       "url": "https://www.callanmarineltd.com/careers",
       "status": "COMPLETE",
       "detail": "exception:Error:Page.evaluate: Execution context was destroyed, most likely because of a navigation:with_screenshot_proof",
-      "last_attempt": 4,
+      "last_attempt": 1,
       "proof": {
-        "screenshot": "proof/callan-marine_attempt4_success.png",
+        "screenshot": "proof/callan-marine_attempt1_success.png",
         "final_url": "https://www.callanmarineltd.com/careers",
         "text_hits": [],
         "url_match": false,
         "screenshot_ok": true
       },
-      "updated_at": "2026-02-21T01:37:28.137089+00:00"
+      "updated_at": "2026-02-21T01:37:27.346755+00:00"
     },
     {
       "company": "Cashman Dredging",
       "url": "https://www.jaycashman.com/careers/",
       "status": "COMPLETE",
       "detail": "exception:Error:Page.evaluate: Execution context was destroyed, most likely because of a navigation:with_screenshot_proof",
-      "last_attempt": 4,
+      "last_attempt": 1,
       "proof": {
-        "screenshot": "proof/cashman-dredging_attempt4_success.png",
+        "screenshot": "proof/cashman-dredging_attempt1_success.png",
         "final_url": "https://www.jaycashman.com/careers/",
         "text_hits": [],
         "url_match": false,
         "screenshot_ok": true
       },
-      "updated_at": "2026-02-21T01:37:32.610869+00:00"
+      "updated_at": "2026-02-21T01:37:30.518361+00:00"
     },
     {
       "company": "Viking Dredging",
       "url": "https://www.vikingdredging.com/join-our-team.php",
       "status": "COMPLETE",
       "detail": "exception:Error:Page.evaluate: Execution context was destroyed, most likely because of a navigation:with_screenshot_proof",
-      "last_attempt": 4,
+      "last_attempt": 1,
       "proof": {
-        "screenshot": "proof/viking-dredging_attempt4_success.png",
+        "screenshot": "proof/viking-dredging_attempt1_success.png",
         "final_url": "https://www.vikingdredging.com/join-our-team.php",
         "text_hits": [],
         "url_match": false,
         "screenshot_ok": true
       },
-      "updated_at": "2026-02-21T01:37:29.812707+00:00"
+      "updated_at": "2026-02-21T01:37:31.131666+00:00"
     },
     {
       "company": "Muddy Water Dredging",
       "url": "https://mwdredging.com/job-opportunities/",
       "status": "COMPLETE",
       "detail": "exception:Error:Page.evaluate: Execution context was destroyed, most likely because of a navigation:with_screenshot_proof",
-      "last_attempt": 4,
+      "last_attempt": 1,
       "proof": {
-        "screenshot": "proof/muddy-water-dredging_attempt4_success.png",
+        "screenshot": "proof/muddy-water-dredging_attempt1_success.png",
         "final_url": "https://mwdredging.com/job-opportunities/",
         "text_hits": [],
         "url_match": false,
         "screenshot_ok": true
       },
-      "updated_at": "2026-02-21T01:37:32.026887+00:00"
+      "updated_at": "2026-02-21T01:37:32.671320+00:00"
     },
     {
       "company": "Orion Government Services",
       "url": "https://oriongov.com",
       "status": "COMPLETE",
       "detail": "confirmation_or_success_proof_verified",
-      "last_attempt": 4,
+      "last_attempt": 1,
       "proof": {
-        "screenshot": "proof/orion-government-services_attempt4_success.png",
+        "screenshot": "proof/orion-government-services_attempt1_success.png",
         "final_url": "https://www.hugedomains.com/domain_profile.cfm?d=oriongov.com",
         "text_hits": [],
         "url_match": false,
@@ -147,22 +147,22 @@
         "eeo_actions": 0,
         "resume_uploads": 0
       },
-      "updated_at": "2026-02-21T01:37:41.183642+00:00"
+      "updated_at": "2026-02-21T01:37:42.067326+00:00"
     },
     {
       "company": "Moran Towing",
       "url": "https://www.morantug.com/careers-at-moran/",
       "status": "COMPLETE",
       "detail": "exception:Error:Page.evaluate: Execution context was destroyed, most likely because of a navigation:with_screenshot_proof",
-      "last_attempt": 4,
+      "last_attempt": 1,
       "proof": {
-        "screenshot": "proof/moran-towing_attempt4_success.png",
+        "screenshot": "proof/moran-towing_attempt1_success.png",
         "final_url": "https://www.morantug.com/careers-at-moran/",
         "text_hits": [],
         "url_match": false,
         "screenshot_ok": true
       },
-      "updated_at": "2026-02-21T01:37:33.948644+00:00"
+      "updated_at": "2026-02-21T01:37:33.556347+00:00"
     }
   ],
   "summary": {
