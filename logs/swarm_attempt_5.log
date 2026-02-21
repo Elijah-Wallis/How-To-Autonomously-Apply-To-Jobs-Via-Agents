@@ -7,21 +7,26 @@
 {
   "self_heal": true,
   "state": {
-    "heal_count": 3,
+    "heal_count": 5,
     "extra_apply_hints": [
       "continue",
       "next",
-      "proceed"
+      "proceed",
+      "begin application",
+      "start"
     ],
     "extra_submit_hints": [
       "confirm",
       "complete",
-      "final submit"
+      "final submit",
+      "send",
+      "review"
     ],
     "extra_success_markers": [
       "thanks for applying",
       "application has been submitted",
-      "we received your application"
+      "we received your application",
+      "your application has been received"
     ]
   }
 }
