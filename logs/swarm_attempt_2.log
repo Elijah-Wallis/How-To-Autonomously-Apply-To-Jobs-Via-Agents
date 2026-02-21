@@ -1,0 +1,24 @@
+{
+  "total": 10,
+  "complete": 0,
+  "blocked": 2,
+  "incomplete": 8
+}
+{
+  "self_heal": true,
+  "state": {
+    "heal_count": 2,
+    "extra_apply_hints": [
+      "continue",
+      "next"
+    ],
+    "extra_submit_hints": [
+      "confirm",
+      "complete"
+    ],
+    "extra_success_markers": [
+      "thanks for applying",
+      "application has been submitted"
+    ]
+  }
+}
