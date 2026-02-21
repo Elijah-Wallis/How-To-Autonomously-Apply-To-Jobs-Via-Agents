@@ -1,0 +1,18 @@
+{
+  "heal_count": 3,
+  "extra_apply_hints": [
+    "continue",
+    "next",
+    "proceed"
+  ],
+  "extra_submit_hints": [
+    "confirm",
+    "complete",
+    "final submit"
+  ],
+  "extra_success_markers": [
+    "thanks for applying",
+    "application has been submitted",
+    "we received your application"
+  ]
+}
