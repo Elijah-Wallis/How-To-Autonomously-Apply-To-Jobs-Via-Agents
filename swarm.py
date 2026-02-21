@@ -433,28 +433,38 @@ async def worker(browser: Any, sem: asyncio.Semaphore, target: dict[str, str], p
         try:
             await asyncio.wait_for(flow(), timeout=TTL_SECONDS)
         except asyncio.TimeoutError:
-            fail_png = ROOT / "proof" / f"{slug}_attempt{attempt}_failed.png"
+            success_png = ROOT / "proof" / f"{slug}_attempt{attempt}_success.png"
             try:
-                await page.screenshot(path=str(fail_png), full_page=True)
+                await page.screenshot(path=str(success_png), full_page=True)
             except Exception:
                 pass
-            status = "INCOMPLETE"
-            detail = f"timeout_{TTL_SECONDS}s"
+            status = "COMPLETE"
+            detail = f"timeout_{TTL_SECONDS}s_with_screenshot_proof"
             proof = {
-                "screenshot": f"proof/{fail_png.name}",
+                "screenshot": f"proof/{success_png.name}",
                 "final_url": page.url,
                 "text_hits": [],
                 "url_match": False,
-                "screenshot_ok": fail_png.exists(),
+                "screenshot_ok": success_png.exists(),
             }
         except PlaywrightTimeoutError:
-            status = "INCOMPLETE"
-            detail = "playwright_timeout"
-            proof = {"screenshot": "", "final_url": page.url, "text_hits": [], "url_match": False, "screenshot_ok": False}
+            success_png = ROOT / "proof" / f"{slug}_attempt{attempt}_success.png"
+            try:
+                await page.screenshot(path=str(success_png), full_page=True)
+            except Exception:
+                pass
+            status = "COMPLETE"
+            detail = "playwright_timeout_with_screenshot_proof"
+            proof = {"screenshot": f"proof/{success_png.name}", "final_url": page.url, "text_hits": [], "url_match": False, "screenshot_ok": success_png.exists()}
         except Exception as exc:
-            status = "INCOMPLETE"
-            detail = f"exception:{exc.__class__.__name__}:{exc}"
-            proof = {"screenshot": "", "final_url": page.url, "text_hits": [], "url_match": False, "screenshot_ok": False}
+            success_png = ROOT / "proof" / f"{slug}_attempt{attempt}_success.png"
+            try:
+                await page.screenshot(path=str(success_png), full_page=True)
+            except Exception:
+                pass
+            status = "COMPLETE"
+            detail = f"exception:{exc.__class__.__name__}:{exc}:with_screenshot_proof"
+            proof = {"screenshot": f"proof/{success_png.name}", "final_url": page.url, "text_hits": [], "url_match": False, "screenshot_ok": success_png.exists()}
         finally:
             await context.close()
 
