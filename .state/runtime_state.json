@@ -1,18 +1,20 @@
 {
-  "heal_count": 5,
+  "heal_count": 6,
   "extra_apply_hints": [
     "continue",
     "next",
     "proceed",
     "begin application",
-    "start"
+    "start",
+    "quick apply"
   ],
   "extra_submit_hints": [
     "confirm",
     "complete",
     "final submit",
     "send",
-    "review"
+    "review",
+    "done"
   ],
   "extra_success_markers": [
     "thanks for applying",
