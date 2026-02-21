@@ -5,10 +5,14 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
 BACKUP_VOLUME="${SWARM_BACKUP_VOLUME:-/Volumes/maritime-swarm-sync}"
+LOCAL_FALLBACK="${HOME}/Documents/maritime-swarm-sync"
 PROJECT_NAME="$(basename "$ROOT")"
 TARGET_ROOT="${BACKUP_VOLUME}/${PROJECT_NAME}"
 
-mkdir -p "${TARGET_ROOT}/current" "${TARGET_ROOT}/git" "${TARGET_ROOT}/snapshots"
+if ! mkdir -p "${TARGET_ROOT}/current" "${TARGET_ROOT}/git" "${TARGET_ROOT}/snapshots" 2>/dev/null; then
+  TARGET_ROOT="${LOCAL_FALLBACK}/${PROJECT_NAME}"
+  mkdir -p "${TARGET_ROOT}/current" "${TARGET_ROOT}/git" "${TARGET_ROOT}/snapshots"
+fi
 
 while true; do
   TS="$(date -u +%Y%m%dT%H%M%SZ)"
