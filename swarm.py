@@ -66,6 +66,12 @@ BLOCKED_URL_SNIPPETS = {
     ".woff2",
     ".ttf",
     ".otf",
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".webp",
+    ".gif",
+    ".css",
 }
 
 COOKIE_HINTS = ["accept", "accept all", "allow all", "i agree", "agree"]
@@ -181,14 +187,25 @@ INJECT_HELPER_JS = r"""
       const text = norm(c.innerText || c.value || c.getAttribute('aria-label') || c.getAttribute('title') || '');
       if (!text) continue;
       if (hs.some(h => text.includes(h))) {
-        c.click();
+        c.focus();
+        c.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+        c.dispatchEvent(new Event('click', { bubbles: true }));
         return text;
       }
     }
     return '';
   }
 
-  window.__MARITIME_SWARM__ = { fillProfile, applyEeo, clickByHints };
+  function detectBlockers() {
+    const bodyText = norm(document.body ? document.body.innerText : '');
+    const captcha = /captcha|recaptcha|hcaptcha|cloudflare.*challenge|verify.*human/i.test(bodyText) ||
+                     document.querySelector('iframe[src*="recaptcha"],iframe[src*="hcaptcha"],iframe[src*="challenges.cloudflare"]');
+    const sms = /enter.*code|verify.*phone|text.*code|sms.*verification/i.test(bodyText);
+    const ats = /taleo|workday|greenhouse|lever|bamboohr|icims|jobvite|smartrecruiters/i.test(window.location.href);
+    return { captcha: !!captcha, sms: !!sms, ats: !!ats, blocked: !!(captcha || sms) };
+  }
+
+  window.__MARITIME_SWARM__ = { fillProfile, applyEeo, clickByHints, detectBlockers };
 })();
 """
 
@@ -276,6 +293,7 @@ def self_heal(attempt: int) -> dict[str, Any]:
 
 
 async def click_by_hints(page: Any, hints: list[str]) -> str:
+    """Pure DOM-only clicking via JS eval - no mouse, no typing delays."""
     try:
         hit = await page.evaluate(
             "(h) => (window.__MARITIME_SWARM__ ? window.__MARITIME_SWARM__.clickByHints(h) : '')",
@@ -285,16 +303,31 @@ async def click_by_hints(page: Any, hints: list[str]) -> str:
             return hit.strip()
     except Exception:
         pass
-
-    for hint in hints:
-        for selector in [f"button:has-text('{hint}')", f"a:has-text('{hint}')", f"input[value*='{hint}' i]"]:
-            loc = page.locator(selector).first
-            try:
-                if await loc.count() > 0:
-                    await loc.click(timeout=1500)
-                    return hint
-            except Exception:
-                continue
+    
+    # Fallback: pure JS eval only, no locator.click()
+    try:
+        for hint in hints:
+            hit = await page.evaluate(f"""
+                (() => {{
+                    const norm = (v) => String(v || '').toLowerCase().replace(/\\s+/g, ' ').trim();
+                    const h = norm('{hint}');
+                    const controls = Array.from(document.querySelectorAll("button,a,input[type='submit'],input[type='button']"));
+                    for (const c of controls) {{
+                        const text = norm(c.innerText || c.value || c.getAttribute('aria-label') || c.getAttribute('title') || '');
+                        if (text.includes(h)) {{
+                            c.focus();
+                            c.dispatchEvent(new MouseEvent('click', {{ bubbles: true, cancelable: true }}));
+                            c.dispatchEvent(new Event('click', {{ bubbles: true }}));
+                            return text;
+                        }}
+                    }}
+                    return '';
+                }})()
+            """)
+            if isinstance(hit, str) and hit.strip():
+                return hit.strip()
+    except Exception:
+        pass
     return ""
 
 
@@ -341,18 +374,27 @@ async def upload_resume(page: Any, path: Path) -> int:
 
 
 async def check_success(page: Any, extra_markers: list[str], screenshot_path: Path) -> dict[str, Any]:
+    """Extract text via pure JS eval, check for confirmation markers."""
     text = ""
     try:
-        text = (await page.locator("body").inner_text(timeout=3500)).lower()
+        text = await page.evaluate("""() => {
+            const body = document.body || document.documentElement;
+            return (body.innerText || body.textContent || '').toLowerCase();
+        }""")
     except Exception:
         text = ""
+    
     url = page.url.lower()
     markers = SUCCESS_TEXT_MARKERS + list(extra_markers or [])
     text_hits = [m for m in markers if m.lower() in text]
     url_ok = any(k in url for k in SUCCESS_URL_MARKERS)
     screenshot_ok = screenshot_path.exists()
+    
+    # ACCEPTANCE GATE: Only ok if we have confirmation proof (text or URL), not just screenshot
+    ok = bool(text_hits or url_ok)
+    
     return {
-        "ok": bool(text_hits or url_ok or screenshot_ok),
+        "ok": ok,
         "text_hits": text_hits,
         "url_match": url_ok,
         "screenshot_ok": screenshot_ok,
@@ -370,12 +412,22 @@ async def worker(browser: Any, sem: asyncio.Semaphore, target: dict[str, str], p
         page = await context.new_page()
 
         async def route_handler(route: Any) -> None:
+            """NETWORK BLOCKING: Abort ALL image/video/font/CSS requests before render."""
             req = route.request
             u = req.url.lower()
-            if req.resource_type in BLOCKED_RESOURCE_TYPES or any(s in u for s in BLOCKED_URL_SNIPPETS):
+            # Block by resource type
+            if req.resource_type in BLOCKED_RESOURCE_TYPES:
                 await route.abort()
-            else:
-                await route.continue_()
+                return
+            # Block by URL extension
+            if any(ext in u for ext in [".png", ".jpg", ".jpeg", ".webp", ".gif", ".mp4", ".webm", ".css", ".woff2", ".ttf", ".woff", ".otf"]):
+                await route.abort()
+                return
+            # Block by URL snippet
+            if any(s in u for s in BLOCKED_URL_SNIPPETS):
+                await route.abort()
+                return
+            await route.continue_()
 
         await page.route("**/*", route_handler)
         await page.add_init_script(INJECT_HELPER_JS)
@@ -386,8 +438,28 @@ async def worker(browser: Any, sem: asyncio.Semaphore, target: dict[str, str], p
 
         async def flow() -> None:
             nonlocal status, detail, proof
+            # HEADLESS + DOM-ONLY: Pure Playwright JS eval only
             await page.goto(url, wait_until="domcontentloaded", timeout=30000)
-            await page.wait_for_timeout(1000)
+            await page.evaluate("() => new Promise(r => setTimeout(r, 500))")  # Minimal delay via JS
+
+            # FAIL-FAST: Detect Captcha/SMS/ATS blockers
+            blockers = await page.evaluate("() => (window.__MARITIME_SWARM__ ? window.__MARITIME_SWARM__.detectBlockers() : {blocked: false})")
+            if blockers.get("blocked"):
+                status = "BLOCKED"
+                detail = f"Blocked - External: captcha={blockers.get('captcha')}, sms={blockers.get('sms')}"
+                success_png = ROOT / "proof" / f"{slug}_attempt{attempt}_blocked.png"
+                try:
+                    await page.screenshot(path=str(success_png), full_page=True)
+                except Exception:
+                    pass
+                proof = {
+                    "screenshot": f"proof/{success_png.name}" if success_png.exists() else "",
+                    "final_url": page.url,
+                    "text_hits": [],
+                    "url_match": False,
+                    "screenshot_ok": success_png.exists(),
+                }
+                return
 
             await click_by_hints(page, COOKIE_HINTS)
             await click_by_hints(page, NAV_HINTS)
@@ -398,18 +470,45 @@ async def worker(browser: Any, sem: asyncio.Semaphore, target: dict[str, str], p
             filled = 0
             eeo = 0
             uploaded = 0
-            for _ in range(3):
+            # BATCHING: Iterate through form filling cycles
+            for cycle in range(3):
                 f, e = await apply_profile(page, profile)
                 filled = max(filled, f)
                 eeo = max(eeo, e)
                 uploaded = max(uploaded, await upload_resume(page, ROOT / str(profile.get("resume_path", "./resume.pdf"))))
                 await click_by_hints(page, apply_hints)
-                await page.wait_for_timeout(1200)
+                await page.evaluate("() => new Promise(r => setTimeout(r, 300))")  # Minimal delay via JS
                 await click_by_hints(page, submit_hints)
-                await page.wait_for_timeout(1800)
+                await page.evaluate("() => new Promise(r => setTimeout(r, 400))")  # Minimal delay via JS
+                
+                # Check for success after each cycle
+                success_png = ROOT / "proof" / f"{slug}_attempt{attempt}_success.png"
+                try:
+                    await page.screenshot(path=str(success_png), full_page=True)
+                except Exception:
+                    pass
+                success = await check_success(page, state.get("extra_success_markers", []), success_png)
+                if success["ok"]:
+                    proof = {
+                        "screenshot": f"proof/{success_png.name}",
+                        "final_url": success.get("final_url", page.url),
+                        "text_hits": success.get("text_hits", []),
+                        "url_match": bool(success.get("url_match", False)),
+                        "screenshot_ok": bool(success.get("screenshot_ok", False)),
+                        "filled_count": filled,
+                        "eeo_actions": eeo,
+                        "resume_uploads": uploaded,
+                    }
+                    status = "COMPLETE"
+                    detail = "confirmation_or_success_proof_verified"
+                    return
 
+            # Final check if no success found in cycles
             success_png = ROOT / "proof" / f"{slug}_attempt{attempt}_success.png"
-            await page.screenshot(path=str(success_png), full_page=True)
+            try:
+                await page.screenshot(path=str(success_png), full_page=True)
+            except Exception:
+                pass
             success = await check_success(page, state.get("extra_success_markers", []), success_png)
 
             proof = {
@@ -423,6 +522,7 @@ async def worker(browser: Any, sem: asyncio.Semaphore, target: dict[str, str], p
                 "resume_uploads": uploaded,
             }
 
+            # ACCEPTANCE GATE: COMPLETE ONLY when confirmation proof exists
             if success["ok"]:
                 status = "COMPLETE"
                 detail = "confirmation_or_success_proof_verified"
@@ -438,33 +538,72 @@ async def worker(browser: Any, sem: asyncio.Semaphore, target: dict[str, str], p
                 await page.screenshot(path=str(success_png), full_page=True)
             except Exception:
                 pass
-            status = "COMPLETE"
-            detail = f"timeout_{TTL_SECONDS}s_with_screenshot_proof"
-            proof = {
-                "screenshot": f"proof/{success_png.name}",
-                "final_url": page.url,
-                "text_hits": [],
-                "url_match": False,
-                "screenshot_ok": success_png.exists(),
-            }
+            # Check if we have confirmation proof despite timeout
+            success = await check_success(page, state.get("extra_success_markers", []), success_png)
+            if success["ok"]:
+                status = "COMPLETE"
+                detail = f"timeout_{TTL_SECONDS}s_with_confirmation_proof"
+                proof = {
+                    "screenshot": f"proof/{success_png.name}",
+                    "final_url": success.get("final_url", page.url),
+                    "text_hits": success.get("text_hits", []),
+                    "url_match": bool(success.get("url_match", False)),
+                    "screenshot_ok": success_png.exists(),
+                }
+            else:
+                status = "INCOMPLETE"
+                detail = f"timeout_{TTL_SECONDS}s_no_confirmation_proof"
+                proof = {
+                    "screenshot": f"proof/{success_png.name}",
+                    "final_url": page.url,
+                    "text_hits": [],
+                    "url_match": False,
+                    "screenshot_ok": success_png.exists(),
+                }
         except PlaywrightTimeoutError:
             success_png = ROOT / "proof" / f"{slug}_attempt{attempt}_success.png"
             try:
                 await page.screenshot(path=str(success_png), full_page=True)
             except Exception:
                 pass
-            status = "COMPLETE"
-            detail = "playwright_timeout_with_screenshot_proof"
-            proof = {"screenshot": f"proof/{success_png.name}", "final_url": page.url, "text_hits": [], "url_match": False, "screenshot_ok": success_png.exists()}
+            # Check if we have confirmation proof despite timeout
+            success = await check_success(page, state.get("extra_success_markers", []), success_png)
+            if success["ok"]:
+                status = "COMPLETE"
+                detail = "playwright_timeout_with_confirmation_proof"
+                proof = {
+                    "screenshot": f"proof/{success_png.name}",
+                    "final_url": success.get("final_url", page.url),
+                    "text_hits": success.get("text_hits", []),
+                    "url_match": bool(success.get("url_match", False)),
+                    "screenshot_ok": success_png.exists(),
+                }
+            else:
+                status = "INCOMPLETE"
+                detail = "playwright_timeout_no_confirmation_proof"
+                proof = {"screenshot": f"proof/{success_png.name}", "final_url": page.url, "text_hits": [], "url_match": False, "screenshot_ok": success_png.exists()}
         except Exception as exc:
             success_png = ROOT / "proof" / f"{slug}_attempt{attempt}_success.png"
             try:
                 await page.screenshot(path=str(success_png), full_page=True)
             except Exception:
                 pass
-            status = "COMPLETE"
-            detail = f"exception:{exc.__class__.__name__}:{exc}:with_screenshot_proof"
-            proof = {"screenshot": f"proof/{success_png.name}", "final_url": page.url, "text_hits": [], "url_match": False, "screenshot_ok": success_png.exists()}
+            # Check if we have confirmation proof despite exception
+            success = await check_success(page, state.get("extra_success_markers", []), success_png)
+            if success["ok"]:
+                status = "COMPLETE"
+                detail = f"exception:{exc.__class__.__name__}:{exc}:with_confirmation_proof"
+                proof = {
+                    "screenshot": f"proof/{success_png.name}",
+                    "final_url": success.get("final_url", page.url),
+                    "text_hits": success.get("text_hits", []),
+                    "url_match": bool(success.get("url_match", False)),
+                    "screenshot_ok": success_png.exists(),
+                }
+            else:
+                status = "INCOMPLETE"
+                detail = f"exception:{exc.__class__.__name__}:{exc}:no_confirmation_proof"
+                proof = {"screenshot": f"proof/{success_png.name}", "final_url": page.url, "text_hits": [], "url_match": False, "screenshot_ok": success_png.exists()}
         finally:
             await context.close()
 
@@ -489,9 +628,15 @@ async def run_swarm(attempt: int, batch_size: int, headful: bool) -> dict[str, A
     sem = asyncio.Semaphore(max(1, min(batch_size, MAX_BATCH)))
 
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=not headful)
-        tasks = [asyncio.create_task(worker(browser, sem, t, profile, state, attempt)) for t in TARGETS]
-        results = await asyncio.gather(*tasks)
+        # HEADLESS + DOM-ONLY: Always headless, pure JS eval
+        browser = await p.chromium.launch(headless=True)
+        # BATCHING: Process in batches of 3, complete batch before next
+        results = []
+        for i in range(0, len(TARGETS), batch_size):
+            batch = TARGETS[i:i + batch_size]
+            batch_tasks = [asyncio.create_task(worker(browser, sem, t, profile, state, attempt)) for t in batch]
+            batch_results = await asyncio.gather(*batch_tasks)
+            results.extend(batch_results)
         await browser.close()
 
     complete = sum(1 for r in results if r.get("status") == "COMPLETE")

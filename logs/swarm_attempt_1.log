@@ -1,5 +1,75 @@
-{
-  "total": 10,
-  "complete": 10,
-  "incomplete": 0
-}
+Traceback (most recent call last):
+  File "/Users/elijah/maritime-deckhand-swarm-feb2026/swarm.py", line 681, in <module>
+    main()
+    ~~~~^^
+  File "/Users/elijah/maritime-deckhand-swarm-feb2026/swarm.py", line 676, in main
+    payload = asyncio.run(run_swarm(max(1, int(args.attempt)), max(1, min(int(args.batch_size), MAX_BATCH)), bool(args.headful)))
+  File "/opt/homebrew/Cellar/python@3.14/3.14.2_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.2_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.2_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/Users/elijah/maritime-deckhand-swarm-feb2026/swarm.py", line 632, in run_swarm
+    browser = await p.chromium.launch(headless=True)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/elijah/maritime-deckhand-swarm-feb2026/.venv/lib/python3.14/site-packages/playwright/async_api/_generated.py", line 14547, in launch
+    await self._impl_obj.launch(
+    ...<16 lines>...
+    )
+  File "/Users/elijah/maritime-deckhand-swarm-feb2026/.venv/lib/python3.14/site-packages/playwright/_impl/_browser_type.py", line 97, in launch
+    await self._channel.send(
+        "launch", TimeoutSettings.launch_timeout, params
+    )
+  File "/Users/elijah/maritime-deckhand-swarm-feb2026/.venv/lib/python3.14/site-packages/playwright/_impl/_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "/Users/elijah/maritime-deckhand-swarm-feb2026/.venv/lib/python3.14/site-packages/playwright/_impl/_connection.py", line 559, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TargetClosedError: BrowserType.launch: Target page, context or browser has been closed
+Browser logs:
+
+<launching> /var/folders/8p/j19hnc6j7jd3pf8jmdvfw8v00000gn/T/cursor-sandbox-cache/a8100a0e93d3ad0faf59ba156503e436/playwright/chromium_headless_shell-1208/chrome-headless-shell-mac-x64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --enable-automation --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/8p/j19hnc6j7jd3pf8jmdvfw8v00000gn/T/playwright_chromiumdev_profile-0Mt8CV --remote-debugging-pipe --no-startup-window
+<launched> pid=90244
+[pid=90244][err] Received signal 11 SEGV_MAPERR 000000000010
+[pid=90244][err]  [0x00010612fa53]
+[pid=90244][err]  [0x000106133313]
+[pid=90244][err]  [0x7ff80cf6b37d]
+[pid=90244][err]  [0x000000000000]
+[pid=90244][err]  [0x000102df68a5]
+[pid=90244][err]  [0x000103a7a4bd]
+[pid=90244][err]  [0x0001029e52b6]
+[pid=90244][err]  [0x0001060dfb8c]
+[pid=90244][err]  [0x0001041bdc4c]
+[pid=90244][err]  [0x00020adee781]
+[pid=90244][err] [end of stack trace]
+Call log:
+  - <launching> /var/folders/8p/j19hnc6j7jd3pf8jmdvfw8v00000gn/T/cursor-sandbox-cache/a8100a0e93d3ad0faf59ba156503e436/playwright/chromium_headless_shell-1208/chrome-headless-shell-mac-x64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --enable-automation --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/8p/j19hnc6j7jd3pf8jmdvfw8v00000gn/T/playwright_chromiumdev_profile-0Mt8CV --remote-debugging-pipe --no-startup-window
+  - <launched> pid=90244
+  - [pid=90244][err] Received signal 11 SEGV_MAPERR 000000000010
+  - [pid=90244][err]  [0x00010612fa53]
+  - [pid=90244][err]  [0x000106133313]
+  - [pid=90244][err]  [0x7ff80cf6b37d]
+  - [pid=90244][err]  [0x000000000000]
+  - [pid=90244][err]  [0x000102df68a5]
+  - [pid=90244][err]  [0x000103a7a4bd]
+  - [pid=90244][err]  [0x0001029e52b6]
+  - [pid=90244][err]  [0x0001060dfb8c]
+  - [pid=90244][err]  [0x0001041bdc4c]
+  - [pid=90244][err]  [0x00020adee781]
+  - [pid=90244][err] [end of stack trace]
+  - [pid=90244] <gracefully close start>
+  - [pid=90244] <kill>
+  - [pid=90244] <will force kill>
+  - [pid=90244] exception while trying to kill process: Error: kill EPERM
+  - [pid=90244] <process did exit: exitCode=null, signal=SIGSEGV>
+  - [pid=90244] starting temporary directories cleanup
+  - [pid=90244] finished temporary directories cleanup
+  - [pid=90244] <gracefully close end>
+
