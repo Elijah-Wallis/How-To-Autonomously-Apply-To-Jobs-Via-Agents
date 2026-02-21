@@ -108,9 +108,10 @@ BLOCKED_DOMAINS = frozenset([
 
 COOKIE_HINTS = ["accept", "accept all", "allow all", "i agree", "agree", "got it", "ok"]
 JOB_KEYWORDS = [
-    "deckhand", "entry level", "entry-level", "dredge", "marine",
+    "deckhand", "entry level", "entry-level", "dredge",
     "trainee", "boatman", "crew", "leverman", "oiler",
     "maritime training", "deck", "tankerman",
+    "view our employment", "apply today",
 ]
 APPLY_HINTS = [
     "apply for this job", "apply now", "apply", "apply online",
@@ -123,9 +124,10 @@ SUBMIT_HINTS = [
     "send", "send application",
 ]
 NAV_HINTS = [
-    "view our employment", "how to apply", "apply today",
+    "careers", "view our employment", "how to apply", "apply today",
     "send resume", "read more", "view opportunities",
     "see open positions", "current openings", "job openings",
+    "open positions", "join our team", "employment",
 ]
 
 # ---------------------------------------------------------------------------
@@ -217,6 +219,7 @@ INJECT_HELPER_JS = r"""
       city: ['city','town'],
       state: ['state','province','region'],
       zip: ['zip','postal','zip code','postal code'],
+      date_available: ['date available','available date','start date','availability','when can you start'],
       pitch: ['cover letter','summary','message','why','about you','introduction','comments','additional comments','comment','notes','tell us'],
       sea_days_note: ['sea days','offshore','additional information','experience','qualifications']
     };
@@ -497,6 +500,15 @@ async def click_hints(page: Any, hints: list[str]) -> str:
 
 
 async def apply_profile(page: Any, profile: dict[str, Any]) -> tuple[int, int]:
+    state_abbrev = profile.get("state", "TX")
+    state_map = {
+        "TX": "Texas", "CA": "California", "FL": "Florida", "LA": "Louisiana",
+        "NY": "New York", "VA": "Virginia", "MD": "Maryland", "NJ": "New Jersey",
+        "PA": "Pennsylvania", "OH": "Ohio", "WA": "Washington", "OR": "Oregon",
+        "AL": "Alabama", "GA": "Georgia", "SC": "South Carolina", "NC": "North Carolina",
+        "CT": "Connecticut", "MA": "Massachusetts", "AK": "Alaska", "HI": "Hawaii",
+    }
+    state_full = state_map.get(state_abbrev, state_abbrev)
     payload = {
         "first_name": profile.get("first_name", ""),
         "last_name": profile.get("last_name", ""),
@@ -505,10 +517,11 @@ async def apply_profile(page: Any, profile: dict[str, Any]) -> tuple[int, int]:
         "phone": profile.get("phone", ""),
         "address_line1": profile.get("address_line1", ""),
         "city": profile.get("city", ""),
-        "state": profile.get("state", ""),
+        "state": state_full,
         "zip": profile.get("zip", ""),
         "pitch": profile.get("pitch", ""),
         "sea_days_note": profile.get("sea_days_note", ""),
+        "date_available": "03/10/2026",
     }
     eeo = profile.get("eeo_defaults", {})
     out = await safe_eval(
