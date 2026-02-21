@@ -110,7 +110,7 @@ BLOCKED_DOMAINS = frozenset([
     "facebook.net", "hotjar", "segment",
 ])
 
-COOKIE_HINTS = ["accept", "accept all", "allow all", "i agree", "agree", "got it", "ok"]
+COOKIE_HINTS = ["accept", "accept all", "allow all", "i agree", "agree", "got it", "ok", "dismiss"]
 JOB_KEYWORDS = [
     "deckhand", "entry level", "entry-level", "dredge",
     "trainee", "boatman", "crew", "leverman", "oiler",
@@ -120,7 +120,7 @@ JOB_KEYWORDS = [
 APPLY_HINTS = [
     "apply for this job", "apply now", "apply", "apply online",
     "start application", "continue application", "apply for this position",
-    "apply today", "submit application",
+    "apply today", "submit application", "type it in myself",
 ]
 SUBMIT_HINTS = [
     "submit", "submit application", "submit my application",
@@ -391,7 +391,8 @@ INJECT_HELPER_JS = r"""
     const b = norm(document.body ? document.body.innerText : '');
     return (
       ['hugedomains.com','godaddy.com/domainsearch','sedo.com','afternic.com','dan.com','parkingcrew'].some(d => u.includes(d)) ||
-      /this domain (is|may be) for sale|buy this domain|domain name for sale|domain is available/i.test(b)
+      /this domain (is|may be) for sale|buy this domain|domain name for sale|domain is available/i.test(b) ||
+      /server error in.*application|runtime error|an application error occurred on the server/i.test(b)
     );
   }
 
@@ -767,8 +768,33 @@ async def worker(
         eeo_total = 0
         uploaded_total = 0
 
+        SOCIAL_DOMAINS = {"facebook.com", "twitter.com", "x.com", "linkedin.com",
+                          "instagram.com", "youtube.com", "tiktok.com", "pinterest.com"}
+
+        async def follow_popup(page_ref, ctx):
+            """Switch to new tab/popup if one opened, skipping social media."""
+            pages = ctx.pages
+            if len(pages) > 1:
+                new_page = pages[-1]
+                try:
+                    await new_page.wait_for_load_state("domcontentloaded", timeout=10000)
+                except Exception:
+                    pass
+                popup_url = new_page.url.lower()
+                if any(sd in popup_url for sd in SOCIAL_DOMAINS):
+                    try:
+                        await new_page.close()
+                    except Exception:
+                        pass
+                    return page_ref
+                await new_page.route("**/*", route_handler)
+                await new_page.add_init_script(INJECT_HELPER_JS)
+                await reinject(new_page)
+                return new_page
+            return page_ref
+
         async def flow() -> None:
-            nonlocal status, detail, proof, filled_total, eeo_total, uploaded_total
+            nonlocal status, detail, proof, filled_total, eeo_total, uploaded_total, page
 
             # ── PHASE 1: Navigate and assess ──────────────────────────
             await page.goto(url, wait_until="domcontentloaded", timeout=30000)
@@ -816,6 +842,7 @@ async def worker(
             )
             if job_clicked:
                 await handle_navigation(page)
+                page = await follow_popup(page, context)
                 # Now on job detail page — try Apply button
                 ats_clicked = await safe_eval(
                     page,
@@ -824,13 +851,16 @@ async def worker(
                 )
                 if ats_clicked:
                     await handle_navigation(page)
+                    page = await follow_popup(page, context)
                 else:
                     await click_hints(page, extra_apply)
                     await handle_navigation(page)
+                    page = await follow_popup(page, context)
             else:
                 # No specific job link found — try nav hints then apply
                 await click_hints(page, NAV_HINTS)
                 await handle_navigation(page)
+                page = await follow_popup(page, context)
                 ats_clicked = await safe_eval(
                     page,
                     "() => window.__SWM2__ ? window.__SWM2__.clickApplyATS() : ''",
@@ -838,9 +868,52 @@ async def worker(
                 )
                 if ats_clicked:
                     await handle_navigation(page)
+                    page = await follow_popup(page, context)
                 else:
                     await click_hints(page, extra_apply)
                     await handle_navigation(page)
+                    page = await follow_popup(page, context)
+
+            # Dismiss any modal dialogs (like resume parse errors on ATS portals)
+            # Use Playwright locators for reliable modal button clicks
+            for btn_text in ["OK", "Ok", "Close", "Dismiss", "Got it"]:
+                try:
+                    loc = page.locator(f'button:has-text("{btn_text}")').first
+                    if await loc.count() > 0 and await loc.is_visible():
+                        await loc.click(timeout=2000)
+                        await js_wait(page, 500)
+                except Exception:
+                    pass
+            # Then click "Type it in myself" or "Continue" to access manual form
+            for btn_text in ["Type it in myself", "Continue", "Start", "Next", "Manual entry"]:
+                try:
+                    loc = page.locator(f'button:has-text("{btn_text}"), a:has-text("{btn_text}"), label:has-text("{btn_text}"), input[value="{btn_text}"]').first
+                    if await loc.count() > 0 and await loc.is_visible():
+                        await loc.click(timeout=2000)
+                        await js_wait(page, 1000)
+                except Exception:
+                    pass
+            # Also try radio buttons for "Manual entry" option
+            try:
+                manual_radio = page.locator('input[type="radio"]')
+                for i in range(await manual_radio.count()):
+                    r = manual_radio.nth(i)
+                    label = await r.evaluate("el => (el.closest('label') || el.parentElement)?.innerText || ''")
+                    if 'manual' in label.lower():
+                        await r.click(timeout=2000)
+                        break
+            except Exception:
+                pass
+            # Click NEXT button for multi-step forms
+            for btn_text in ["NEXT", "Next", "Continue", "Proceed"]:
+                try:
+                    loc = page.locator(f'button:has-text("{btn_text}"), a:has-text("{btn_text}"), input[value="{btn_text}"]').first
+                    if await loc.count() > 0 and await loc.is_visible():
+                        await loc.click(timeout=2000)
+                        await js_wait(page, 1000)
+                        break
+                except Exception:
+                    pass
 
             # ── PHASE 3: Fill, upload, EEO, submit (repeat) ──────────
             for cycle in range(4):
