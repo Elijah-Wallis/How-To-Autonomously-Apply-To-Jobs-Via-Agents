@@ -621,6 +621,24 @@ async def check_strict_success(
 ) -> dict[str, Any]:
     """STRICT confirmation — captures page source + screenshot + logs exact text."""
     text = str(await safe_eval(page, "() => window.__SWM2__ ? window.__SWM2__.getVisibleText() : ''", "") or "")
+    # Also check modals, alerts, overlays, and toasts
+    modal_text = str(await safe_eval(page, """() => {
+        const sels = [
+            '[role="dialog"]', '[role="alert"]', '[role="alertdialog"]',
+            '.modal', '.overlay', '.toast', '.alert', '.success-message',
+            '[class*="modal"]', '[class*="dialog"]', '[class*="toast"]',
+            '[class*="success"]', '[class*="confirm"]', '[class*="thank"]',
+        ];
+        let found = [];
+        for (const sel of sels) {
+            for (const el of document.querySelectorAll(sel)) {
+                const t = (el.innerText || el.textContent || '').trim();
+                if (t) found.push(t.toLowerCase());
+            }
+        }
+        return found.join(' ');
+    }""", "") or "")
+    text = text + " " + modal_text
     url = page.url.lower()
 
     all_markers = STRICT_TEXT_MARKERS + list(extra_markers or [])
@@ -884,9 +902,28 @@ async def worker(
 
                 await js_wait(page, 300)
 
-                # Try submit
+                # Try submit — multiple strategies
                 await click_hints(page, extra_submit)
-                await handle_navigation(page)
+                # Direct BambooHR/Fabric submit: find button by text content
+                await safe_eval(page, """() => {
+                    const buttons = Array.from(document.querySelectorAll('button'));
+                    for (const btn of buttons) {
+                        const txt = (btn.innerText || btn.textContent || '').toLowerCase().trim();
+                        if (txt.includes('submit application') || txt.includes('submit')) {
+                            btn.scrollIntoView({ behavior: 'instant', block: 'center' });
+                            btn.focus();
+                            btn.click();
+                            // Also try native form submit
+                            const form = btn.closest('form');
+                            if (form) { try { form.requestSubmit(btn); } catch(e) {} }
+                            return true;
+                        }
+                    }
+                    return false;
+                }""", False)
+                # Longer wait for AJAX submission + confirmation rendering
+                await js_wait(page, 3000)
+                await reinject(page)
 
                 # Check for strict confirmation after submit
                 success = await check_strict_success(page, slug, attempt, extra_markers)
