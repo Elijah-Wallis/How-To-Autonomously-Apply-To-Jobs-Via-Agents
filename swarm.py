@@ -226,6 +226,8 @@ INJECT_HELPER_JS = r"""
       date_available: ['date available','available date','start date','availability','when can you start'],
       desired_pay: ['desired pay','salary','pay','compensation','wage','desired salary','expected salary','pay rate','hourly rate'],
       referred_by: ['who referred','referred','referral','how did you hear','source','hear about'],
+      career_goals: ['what are you looking for','career goal','looking for in a career','career interest','career objective'],
+      work_environment: ['ideal work environment','work environment','describe your ideal','work setting','preferred environment'],
       pitch: ['cover letter','summary','message','why','about you','introduction','comments','additional comments','comment','notes','tell us'],
       sea_days_note: ['sea days','offshore','additional information','experience','qualifications']
     };
@@ -571,6 +573,8 @@ async def apply_profile(page: Any, profile: dict[str, Any]) -> tuple[int, int]:
         "date_available": "03/10/2026",
         "desired_pay": "Negotiable",
         "referred_by": "Online Job Board",
+        "career_goals": "A rewarding career in the maritime and dredging industry where I can apply my 250 documented sea days of experience and Tankerman PIC certification.",
+        "work_environment": "A collaborative, safety-focused maritime environment with hands-on operational work aboard dredging vessels.",
     }
     eeo = profile.get("eeo_defaults", {})
     out = await safe_eval(
