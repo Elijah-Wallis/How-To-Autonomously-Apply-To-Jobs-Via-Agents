@@ -982,6 +982,39 @@ async def worker(
 
                 await js_wait(page, 300)
 
+                # React state diagnostic: check what React thinks each field contains
+                if "bamboohr" in page.url:
+                    react_diag = await safe_eval(page, """() => {
+                        const form = document.getElementById('job-application-form') || document.querySelector('form');
+                        if (!form) return {error: 'no_form'};
+                        const inputs = Array.from(form.querySelectorAll('input, textarea, select'));
+                        const state = {};
+                        const empty = [];
+                        const required = [];
+                        for (const inp of inputs) {
+                            const name = inp.name || inp.id || inp.getAttribute('aria-label') || inp.type;
+                            const val = inp.value || '';
+                            state[name] = val.substring(0, 30);
+                            if (!val && inp.type !== 'hidden' && inp.type !== 'file') {
+                                empty.push(name);
+                            }
+                            if (inp.required || inp.getAttribute('aria-required') === 'true') {
+                                required.push(name + '=' + (val ? 'OK' : 'EMPTY'));
+                            }
+                        }
+                        // Also check React fiber for validation state
+                        const submitBtn = form.querySelector('button[type="submit"]');
+                        const btnDisabled = submitBtn ? submitBtn.disabled : 'no_btn';
+                        return {
+                            total: inputs.length,
+                            empty_count: empty.length,
+                            empty: empty.slice(0, 10),
+                            required: required.slice(0, 15),
+                            btn_disabled: btnDisabled
+                        };
+                    }""", {"error": "eval_failed"})
+                    print(f"  [REACT-DIAG] {react_diag}", flush=True)
+
                 # Submit — capture network + console for debugging
                 before_url = page.url
                 submit_responses: list[dict] = []
