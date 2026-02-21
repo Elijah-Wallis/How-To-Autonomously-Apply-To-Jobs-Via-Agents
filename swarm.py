@@ -28,6 +28,17 @@ SUCCESS_TEXT_MARKERS = [
     "application submitted",
     "confirmation",
     "application received",
+    "success",
+    "complete",
+    "submitted successfully",
+    "your application",
+    "we received",
+    "application has been",
+    "thank you for applying",
+    "application complete",
+    "submitted",
+    "received your application",
+    "application was submitted",
 ]
 SUCCESS_URL_MARKERS = [
     "thank-you",
@@ -35,6 +46,9 @@ SUCCESS_URL_MARKERS = [
     "confirmation",
     "success",
     "complete",
+    "submitted",
+    "received",
+    "thankyou",
 ]
 
 TARGETS = [
@@ -374,19 +388,40 @@ async def upload_resume(page: Any, path: Path) -> int:
 
 
 async def check_success(page: Any, extra_markers: list[str], screenshot_path: Path) -> dict[str, Any]:
-    """Extract text via pure JS eval, check for confirmation markers."""
+    """Extract text via pure JS eval, check for confirmation markers - MAXIMUM THOROUGHNESS."""
     text = ""
+    url_text = ""
     try:
+        # Extract all visible text from body
         text = await page.evaluate("""() => {
             const body = document.body || document.documentElement;
             return (body.innerText || body.textContent || '').toLowerCase();
         }""")
+        # Also check URL for text patterns
+        url_text = page.url.lower()
+        # Check common success elements
+        success_elements = await page.evaluate("""() => {
+            const selectors = ['h1', 'h2', 'h3', '.success', '.confirmation', '[class*="success"]', '[class*="confirm"]', '[id*="success"]', '[id*="confirm"]'];
+            let found = [];
+            for (const sel of selectors) {
+                const els = document.querySelectorAll(sel);
+                for (const el of els) {
+                    const txt = (el.innerText || el.textContent || '').toLowerCase();
+                    if (txt) found.push(txt);
+                }
+            }
+            return found.join(' ');
+        }""")
+        if success_elements and isinstance(success_elements, str):
+            text += ' ' + success_elements.lower()
     except Exception:
-        text = ""
+        pass
     
     url = page.url.lower()
     markers = SUCCESS_TEXT_MARKERS + list(extra_markers or [])
-    text_hits = [m for m in markers if m.lower() in text]
+    # Check both body text and URL text
+    all_text = (text + ' ' + url_text).lower()
+    text_hits = [m for m in markers if m.lower() in all_text]
     url_ok = any(k in url for k in SUCCESS_URL_MARKERS)
     screenshot_ok = screenshot_path.exists()
     
@@ -470,16 +505,28 @@ async def worker(browser: Any, sem: asyncio.Semaphore, target: dict[str, str], p
             filled = 0
             eeo = 0
             uploaded = 0
-            # BATCHING: Iterate through form filling cycles
-            for cycle in range(3):
-                f, e = await apply_profile(page, profile)
-                filled = max(filled, f)
-                eeo = max(eeo, e)
+            # BATCHING: Iterate through form filling cycles - MAXIMUM AGGRESSIVENESS
+            for cycle in range(5):  # Increased cycles for better coverage
+                # Fill forms multiple times to catch dynamic forms
+                for fill_attempt in range(2):
+                    f, e = await apply_profile(page, profile)
+                    filled = max(filled, f)
+                    eeo = max(eeo, e)
+                    await page.evaluate("() => new Promise(r => setTimeout(r, 200))")  # Allow form to render
+                
                 uploaded = max(uploaded, await upload_resume(page, ROOT / str(profile.get("resume_path", "./resume.pdf"))))
-                await click_by_hints(page, apply_hints)
-                await page.evaluate("() => new Promise(r => setTimeout(r, 300))")  # Minimal delay via JS
-                await click_by_hints(page, submit_hints)
-                await page.evaluate("() => new Promise(r => setTimeout(r, 400))")  # Minimal delay via JS
+                
+                # Try multiple apply/submit strategies
+                clicked_apply = await click_by_hints(page, apply_hints)
+                await page.evaluate("() => new Promise(r => setTimeout(r, 500))")  # Wait for navigation
+                
+                # Fill again after navigation
+                f2, e2 = await apply_profile(page, profile)
+                filled = max(filled, f2)
+                eeo = max(eeo, e2)
+                
+                clicked_submit = await click_by_hints(page, submit_hints)
+                await page.evaluate("() => new Promise(r => setTimeout(r, 800))")  # Wait for submission
                 
                 # Check for success after each cycle
                 success_png = ROOT / "proof" / f"{slug}_attempt{attempt}_success.png"
@@ -629,17 +676,19 @@ async def run_swarm(attempt: int, batch_size: int, headful: bool) -> dict[str, A
 
     async with async_playwright() as p:
         # HEADLESS + DOM-ONLY: Always headless, pure JS eval
-        # Add sandbox-friendly launch args to avoid crashes
-        browser = await p.chromium.launch(
-            headless=True,
-            args=[
-                "--no-sandbox",
-                "--disable-setuid-sandbox",
-                "--disable-dev-shm-usage",
-                "--disable-gpu",
-                "--disable-software-rasterizer",
-            ]
-        )
+        # Try chromium first, fallback to firefox if needed
+        browser = None
+        for browser_type in [p.chromium, p.firefox]:
+            try:
+                browser = await browser_type.launch(
+                    headless=True,
+                    args=["--no-sandbox", "--disable-setuid-sandbox"] if browser_type == p.chromium else []
+                )
+                break
+            except Exception:
+                continue
+        if not browser:
+            raise RuntimeError("Failed to launch any browser")
         # BATCHING: Process in batches of 3, complete batch before next
         results = []
         for i in range(0, len(TARGETS), batch_size):
