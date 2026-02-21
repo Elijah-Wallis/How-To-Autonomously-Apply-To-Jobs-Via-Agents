@@ -924,16 +924,27 @@ async def worker(
                     }
                     return false;
                 }""", False)
-                await js_wait(page, 1000)
-                # Playwright native click fallback (handles React event binding)
+                await js_wait(page, 500)
+                # Playwright native click — most reliable for React/MUI
+                before_url = page.url
                 try:
-                    submit_loc = page.locator('button:has-text("Submit Application"), button:has-text("Submit")')
-                    if await submit_loc.count() > 0:
-                        await submit_loc.first.click(timeout=3000)
+                    submit_btn = page.locator('button[type="submit"][form="job-application-form"]')
+                    if await submit_btn.count() > 0:
+                        await submit_btn.first.click(timeout=5000)
+                    else:
+                        submit_btn = page.locator('button:has-text("Submit Application")')
+                        if await submit_btn.count() > 0:
+                            await submit_btn.first.click(timeout=5000)
                 except Exception:
                     pass
                 # Wait for AJAX submission + confirmation rendering
-                await js_wait(page, 3000)
+                await js_wait(page, 5000)
+                # If URL changed, wait for new page
+                if page.url != before_url:
+                    try:
+                        await page.wait_for_load_state("domcontentloaded", timeout=5000)
+                    except Exception:
+                        pass
                 await reinject(page)
 
                 # Check for strict confirmation after submit
