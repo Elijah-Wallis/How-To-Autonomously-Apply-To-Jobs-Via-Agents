@@ -1,0 +1,30 @@
+{
+  "first_name": "Elijah",
+  "last_name": "Wallis",
+  "email": "elijahcwallis@gmail.com",
+  "phone": "985-991-4360",
+  "address_line1": "3201 Wynwood Dr",
+  "city": "Plano",
+  "state": "TX",
+  "zip": "75074",
+  "resume_path": "./resume.pdf",
+  "twic": "Active TWIC holder",
+  "sea_days_documented": 250,
+  "uscg_coursework_completed": [
+    "STCW Basic",
+    "Able Seafarer Deck",
+    "RFPNW",
+    "PSC",
+    "VPDSD"
+  ],
+  "tankerman_pic_lg_dl_finish_date": "March 6, 2026",
+  "mmc_submission_timing": "Full MMC package submits to USCG same week",
+  "deployment_readiness": "Immediate deployment, no relocation from Plano area, ready for Gulf/East/West rotations",
+  "eeo_defaults": {
+    "race": "Black or African American",
+    "veteran": "No",
+    "disability": "No"
+  },
+  "pitch": "I am an active TWIC holder seeking an Entry-Level Deckhand / Dredge Crew / Tankerman Trainee position. I have 250 documented sea days (company letters attached) and have completed all USCG-approved coursework: STCW Basic, Able Seafarer Deck, RFPNW, PSC, VPDSD. Tankerman PIC (LG & DL) finishes March 6, 2026. Full MMC package submits to USCG same week. Drug-free, medically fit, no relocation needed from Plano area, ready for immediate deployment on inland/Gulf dredging/towing to continue building sea time.",
+  "sea_days_note": "250 documented sea days with company letters attached."
+}

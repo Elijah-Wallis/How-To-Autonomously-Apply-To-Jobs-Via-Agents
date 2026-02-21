@@ -1,0 +1,1 @@
+For ALL EEO, veteran, disability, protected class, race questions: Race = "Black or African American"; Veteran/Protected status = "No" or "Decline to Answer"; Disability = "No" or "I do not wish to disclose". Never disclose or select Yes.
