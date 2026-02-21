@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-02-21T03:33:00.590884+00:00",
-  "attempt": 5,
+  "generated_at": "2026-02-21T03:38:05.717923+00:00",
+  "attempt": 7,
   "batch_size": 3,
   "ttl_seconds": 90,
   "max_self_heal_attempts": 15,
@@ -10,9 +10,9 @@
       "url": "https://curtinmaritime.bamboohr.com/jobs",
       "status": "INCOMPLETE",
       "detail": "no_strict_confirmation",
-      "last_attempt": 5,
+      "last_attempt": 7,
       "proof": {
-        "screenshot": "proof/curtin-maritime_attempt5_success.png",
+        "screenshot": "proof/curtin-maritime_attempt7_success.png",
         "final_url": "https://curtinmaritime.bamboohr.com/careers/215",
         "text_hits": [],
         "url_match": false,
@@ -21,16 +21,16 @@
         "eeo_actions": 3,
         "resume_uploads": 1
       },
-      "updated_at": "2026-02-21T03:30:56.819563+00:00"
+      "updated_at": "2026-02-21T03:35:59.046665+00:00"
     },
     {
       "company": "Great Lakes Dredge & Dock",
       "url": "https://gldd.com/careers/",
       "status": "BLOCKED",
       "detail": "Blocked - External: captcha=True, sms=False",
-      "last_attempt": 5,
+      "last_attempt": 7,
       "proof": {
-        "screenshot": "proof/great-lakes-dredge-dock_attempt5_blocked.png",
+        "screenshot": "proof/great-lakes-dredge-dock_attempt7_blocked.png",
         "final_url": "https://gldd.com/careers/",
         "text_hits": [],
         "url_match": false,
@@ -39,16 +39,16 @@
         "eeo_actions": 0,
         "resume_uploads": 0
       },
-      "updated_at": "2026-02-21T03:30:33.669716+00:00"
+      "updated_at": "2026-02-21T03:35:35.972903+00:00"
     },
     {
       "company": "Weeks Marine",
       "url": "https://kiewitcareers.kiewit.com/Weeks",
       "status": "INCOMPLETE",
       "detail": "no_strict_confirmation",
-      "last_attempt": 5,
+      "last_attempt": 7,
       "proof": {
-        "screenshot": "proof/weeks-marine_attempt5_success.png",
+        "screenshot": "proof/weeks-marine_attempt7_success.png",
         "final_url": "https://kiewitcareers.kiewit.com/Weeks/go/Weeks_Interns-Entry-Level/9383100/",
         "text_hits": [],
         "url_match": false,
@@ -57,16 +57,16 @@
         "eeo_actions": 0,
         "resume_uploads": 0
       },
-      "updated_at": "2026-02-21T03:30:50.732679+00:00"
+      "updated_at": "2026-02-21T03:35:52.797367+00:00"
     },
     {
       "company": "Manson Construction",
       "url": "https://www.mansonconstruction.com/careers",
       "status": "INCOMPLETE",
       "detail": "no_strict_confirmation",
-      "last_attempt": 5,
+      "last_attempt": 7,
       "proof": {
-        "screenshot": "proof/manson-construction_attempt5_success.png",
+        "screenshot": "proof/manson-construction_attempt7_success.png",
         "final_url": "https://www.mansonconstruction.com/careers",
         "text_hits": [],
         "url_match": false,
@@ -75,16 +75,16 @@
         "eeo_actions": 0,
         "resume_uploads": 0
       },
-      "updated_at": "2026-02-21T03:31:18.665961+00:00"
+      "updated_at": "2026-02-21T03:36:20.983622+00:00"
     },
     {
       "company": "Callan Marine",
       "url": "https://www.callanmarineltd.com/careers",
       "status": "INCOMPLETE",
       "detail": "no_strict_confirmation",
-      "last_attempt": 5,
+      "last_attempt": 7,
       "proof": {
-        "screenshot": "proof/callan-marine_attempt5_success.png",
+        "screenshot": "proof/callan-marine_attempt7_success.png",
         "final_url": "https://www.callanmarineltd.com/careers",
         "text_hits": [],
         "url_match": false,
@@ -93,14 +93,14 @@
         "eeo_actions": 0,
         "resume_uploads": 0
       },
-      "updated_at": "2026-02-21T03:31:16.324498+00:00"
+      "updated_at": "2026-02-21T03:36:18.592541+00:00"
     },
     {
       "company": "Cashman Dredging",
       "url": "https://www.jaycashman.com/careers/",
       "status": "INCOMPLETE",
       "detail": "timeout_90s_no_confirmation",
-      "last_attempt": 5,
+      "last_attempt": 7,
       "proof": {
         "screenshot": "",
         "final_url": "https://www.jaycashman.com/careers/",
@@ -111,16 +111,16 @@
         "eeo_actions": 0,
         "resume_uploads": 0
       },
-      "updated_at": "2026-02-21T03:32:27.091541+00:00"
+      "updated_at": "2026-02-21T03:37:29.312612+00:00"
     },
     {
       "company": "Viking Dredging",
       "url": "https://www.vikingdredging.com/join-our-team.php",
       "status": "INCOMPLETE",
       "detail": "no_strict_confirmation",
-      "last_attempt": 5,
+      "last_attempt": 7,
       "proof": {
-        "screenshot": "proof/viking-dredging_attempt5_success.png",
+        "screenshot": "proof/viking-dredging_attempt7_success.png",
         "final_url": "https://www.vikingdredging.com/join-our-team.php",
         "text_hits": [],
         "url_match": false,
@@ -129,16 +129,16 @@
         "eeo_actions": 0,
         "resume_uploads": 0
       },
-      "updated_at": "2026-02-21T03:32:46.602892+00:00"
+      "updated_at": "2026-02-21T03:37:48.886473+00:00"
     },
     {
       "company": "Muddy Water Dredging",
       "url": "https://mwdredging.com/job-opportunities/",
       "status": "INCOMPLETE",
       "detail": "no_strict_confirmation",
-      "last_attempt": 5,
+      "last_attempt": 7,
       "proof": {
-        "screenshot": "proof/muddy-water-dredging_attempt5_success.png",
+        "screenshot": "proof/muddy-water-dredging_attempt7_success.png",
         "final_url": "https://mwdredging.com/job-opportunities/",
         "text_hits": [],
         "url_match": false,
@@ -147,16 +147,16 @@
         "eeo_actions": 0,
         "resume_uploads": 0
       },
-      "updated_at": "2026-02-21T03:32:48.765790+00:00"
+      "updated_at": "2026-02-21T03:37:53.200965+00:00"
     },
     {
       "company": "Orion Government Services",
       "url": "https://oriongov.com",
       "status": "BLOCKED",
       "detail": "Blocked - External: dead_domain",
-      "last_attempt": 5,
+      "last_attempt": 7,
       "proof": {
-        "screenshot": "proof/orion-government-services_attempt5_blocked.png",
+        "screenshot": "proof/orion-government-services_attempt7_blocked.png",
         "final_url": "https://www.hugedomains.com/domain_profile.cfm?d=oriongov.com",
         "text_hits": [],
         "url_match": false,
@@ -165,16 +165,16 @@
         "eeo_actions": 0,
         "resume_uploads": 0
       },
-      "updated_at": "2026-02-21T03:32:29.788761+00:00"
+      "updated_at": "2026-02-21T03:37:31.922339+00:00"
     },
     {
       "company": "Moran Towing",
       "url": "https://www.morantug.com/careers-at-moran/",
       "status": "INCOMPLETE",
       "detail": "no_strict_confirmation",
-      "last_attempt": 5,
+      "last_attempt": 7,
       "proof": {
-        "screenshot": "proof/moran-towing_attempt5_success.png",
+        "screenshot": "proof/moran-towing_attempt7_success.png",
         "final_url": "https://www.morantug.com/careers-at-moran/how-to-apply/",
         "text_hits": [],
         "url_match": false,
@@ -183,7 +183,7 @@
         "eeo_actions": 0,
         "resume_uploads": 0
       },
-      "updated_at": "2026-02-21T03:33:00.305871+00:00"
+      "updated_at": "2026-02-21T03:38:05.350283+00:00"
     }
   ],
   "summary": {

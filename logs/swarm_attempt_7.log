@@ -7,14 +7,15 @@
 {
   "self_heal": true,
   "state": {
-    "heal_count": 6,
+    "heal_count": 7,
     "extra_apply_hints": [
       "continue",
       "next",
       "proceed",
       "begin application",
       "start",
-      "quick apply"
+      "quick apply",
+      "view details"
     ],
     "extra_submit_hints": [
       "confirm",
