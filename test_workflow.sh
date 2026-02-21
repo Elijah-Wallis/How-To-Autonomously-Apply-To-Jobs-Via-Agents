@@ -49,6 +49,11 @@ for r in results:
     company = r.get("company", "unknown")
     status = r.get("status", "")
     proof = r.get("proof", {}) if isinstance(r.get("proof", {}), dict) else {}
+
+    # BLOCKED is an acceptable terminal state (captcha, dead domain, SMS)
+    if status == "BLOCKED":
+        continue
+
     text_hits = {str(x).strip().lower() for x in proof.get("text_hits", [])}
     url_ok = bool(proof.get("url_match", False))
     shot = str(proof.get("screenshot", "")).strip()
