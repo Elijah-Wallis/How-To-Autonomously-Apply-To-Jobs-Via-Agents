@@ -1,46 +1,28 @@
-Traceback (most recent call last):
-  File "/Users/elijah/maritime-deckhand-swarm-feb2026/swarm.py", line 691, in <module>
-    main()
-    ~~~~^^
-  File "/Users/elijah/maritime-deckhand-swarm-feb2026/swarm.py", line 686, in main
-    payload = asyncio.run(run_swarm(max(1, int(args.attempt)), max(1, min(int(args.batch_size), MAX_BATCH)), bool(args.headful)))
-  File "/opt/homebrew/Cellar/python@3.14/3.14.2_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 204, in run
-    return runner.run(main)
-           ~~~~~~~~~~^^^^^^
-  File "/opt/homebrew/Cellar/python@3.14/3.14.2_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 127, in run
-    return self._loop.run_until_complete(task)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
-  File "/opt/homebrew/Cellar/python@3.14/3.14.2_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
-    return future.result()
-           ~~~~~~~~~~~~~^^
-  File "/Users/elijah/maritime-deckhand-swarm-feb2026/swarm.py", line 633, in run_swarm
-    browser = await p.chromium.launch(
-              ^^^^^^^^^^^^^^^^^^^^^^^^
-    ...<8 lines>...
-    )
-    ^
-  File "/Users/elijah/maritime-deckhand-swarm-feb2026/.venv/lib/python3.14/site-packages/playwright/async_api/_generated.py", line 14547, in launch
-    await self._impl_obj.launch(
-    ...<16 lines>...
-    )
-  File "/Users/elijah/maritime-deckhand-swarm-feb2026/.venv/lib/python3.14/site-packages/playwright/_impl/_browser_type.py", line 97, in launch
-    await self._channel.send(
-        "launch", TimeoutSettings.launch_timeout, params
-    )
-  File "/Users/elijah/maritime-deckhand-swarm-feb2026/.venv/lib/python3.14/site-packages/playwright/_impl/_connection.py", line 69, in send
-    return await self._connection.wrap_api_call(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    ...<3 lines>...
-    )
-    ^
-  File "/Users/elijah/maritime-deckhand-swarm-feb2026/.venv/lib/python3.14/site-packages/playwright/_impl/_connection.py", line 559, in wrap_api_call
-    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
-playwright._impl._errors.Error: BrowserType.launch: Executable doesn't exist at /var/folders/8p/j19hnc6j7jd3pf8jmdvfw8v00000gn/T/cursor-sandbox-cache/a8100a0e93d3ad0faf59ba156503e436/playwright/chromium_headless_shell-1208/chrome-headless-shell-mac-arm64/chrome-headless-shell
-╔════════════════════════════════════════════════════════════╗
-║ Looks like Playwright was just installed or updated.       ║
-║ Please run the following command to download new browsers: ║
-║                                                            ║
-║     playwright install                                     ║
-║                                                            ║
-║ <3 Playwright Team                                         ║
-╚════════════════════════════════════════════════════════════╝
+{
+  "total": 10,
+  "complete": 0,
+  "incomplete": 10
+}
+{
+  "self_heal": true,
+  "state": {
+    "heal_count": 4,
+    "extra_apply_hints": [
+      "continue",
+      "next",
+      "proceed",
+      "begin application"
+    ],
+    "extra_submit_hints": [
+      "confirm",
+      "complete",
+      "final submit",
+      "send"
+    ],
+    "extra_success_markers": [
+      "thanks for applying",
+      "application has been submitted",
+      "we received your application"
+    ]
+  }
+}
