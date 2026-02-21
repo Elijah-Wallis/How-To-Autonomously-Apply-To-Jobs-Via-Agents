@@ -1,0 +1,35 @@
+{
+  "total": 10,
+  "complete": 0,
+  "blocked": 0,
+  "incomplete": 10
+}
+{
+  "self_heal": true,
+  "state": {
+    "heal_count": 7,
+    "extra_apply_hints": [
+      "continue",
+      "next",
+      "proceed",
+      "begin application",
+      "start",
+      "quick apply",
+      "view details"
+    ],
+    "extra_submit_hints": [
+      "confirm",
+      "complete",
+      "final submit",
+      "send",
+      "review",
+      "done"
+    ],
+    "extra_success_markers": [
+      "thanks for applying",
+      "application has been submitted",
+      "we received your application",
+      "your application has been received"
+    ]
+  }
+}

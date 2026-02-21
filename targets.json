@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-02-21T04:34:54.657114+00:00",
-  "attempt": 1,
+  "generated_at": "2026-02-21T04:45:14.260488+00:00",
+  "attempt": 15,
   "batch_size": 3,
   "ttl_seconds": 120,
   "max_self_heal_attempts": 15,
@@ -9,28 +9,28 @@
       "company": "Curtin Maritime",
       "url": "https://curtinmaritime.bamboohr.com/jobs",
       "status": "INCOMPLETE",
-      "detail": "no_strict_confirmation",
-      "last_attempt": 1,
+      "detail": "exception:Error:Page.goto: NS_ERROR_UNKNOWN_HOST\nCall log:\n  - navigating to \"https://curtinmaritime.bamboohr.com/jobs\", waiting until \"",
+      "last_attempt": 15,
       "proof": {
-        "screenshot": "proof/curtin-maritime_attempt1_success.png",
-        "final_url": "https://curtinmaritime.bamboohr.com/careers/215",
+        "screenshot": "proof/curtin-maritime_attempt15_success.png",
+        "final_url": "https://curtinmaritime.bamboohr.com/jobs",
         "text_hits": [],
         "url_match": false,
         "screenshot_ok": true,
-        "filled_count": 18,
-        "eeo_actions": 3,
-        "resume_uploads": 1
+        "filled_count": 0,
+        "eeo_actions": 0,
+        "resume_uploads": 0
       },
-      "updated_at": "2026-02-21T04:31:35.288831+00:00"
+      "updated_at": "2026-02-21T04:45:12.856617+00:00"
     },
     {
       "company": "Great Lakes Dredge & Dock",
       "url": "https://gldd.com/careers/",
-      "status": "BLOCKED",
-      "detail": "Blocked - External: captcha=True, sms=False",
-      "last_attempt": 1,
+      "status": "INCOMPLETE",
+      "detail": "exception:Error:Page.goto: NS_ERROR_UNKNOWN_HOST\nCall log:\n  - navigating to \"https://gldd.com/careers/\", waiting until \"domcontentloade",
+      "last_attempt": 15,
       "proof": {
-        "screenshot": "proof/great-lakes-dredge-dock_attempt1_blocked.png",
+        "screenshot": "proof/great-lakes-dredge-dock_attempt15_success.png",
         "final_url": "https://gldd.com/careers/",
         "text_hits": [],
         "url_match": false,
@@ -39,35 +39,17 @@
         "eeo_actions": 0,
         "resume_uploads": 0
       },
-      "updated_at": "2026-02-21T04:30:26.821489+00:00"
+      "updated_at": "2026-02-21T04:45:12.875962+00:00"
     },
     {
       "company": "Weeks Marine",
       "url": "https://kiewitcareers.kiewit.com/Weeks",
       "status": "INCOMPLETE",
-      "detail": "no_strict_confirmation",
-      "last_attempt": 1,
+      "detail": "exception:Error:Page.goto: NS_ERROR_UNKNOWN_HOST\nCall log:\n  - navigating to \"https://kiewitcareers.kiewit.com/Weeks\", waiting until \"do",
+      "last_attempt": 15,
       "proof": {
-        "screenshot": "proof/weeks-marine_attempt1_success.png",
-        "final_url": "https://kiewitcareers.kiewit.com/Weeks/search/?createNewAlert=false&q=&locationsearch=",
-        "text_hits": [],
-        "url_match": false,
-        "screenshot_ok": true,
-        "filled_count": 1,
-        "eeo_actions": 0,
-        "resume_uploads": 0
-      },
-      "updated_at": "2026-02-21T04:31:12.782872+00:00"
-    },
-    {
-      "company": "Manson Construction",
-      "url": "https://www.mansonconstruction.com/careers",
-      "status": "INCOMPLETE",
-      "detail": "no_strict_confirmation",
-      "last_attempt": 1,
-      "proof": {
-        "screenshot": "proof/manson-construction_attempt1_success.png",
-        "final_url": "https://www.mansonconstruction.com/search",
+        "screenshot": "proof/weeks-marine_attempt15_success.png",
+        "final_url": "https://kiewitcareers.kiewit.com/Weeks",
         "text_hits": [],
         "url_match": false,
         "screenshot_ok": true,
@@ -75,16 +57,34 @@
         "eeo_actions": 0,
         "resume_uploads": 0
       },
-      "updated_at": "2026-02-21T04:32:31.732152+00:00"
+      "updated_at": "2026-02-21T04:45:12.928141+00:00"
+    },
+    {
+      "company": "Manson Construction",
+      "url": "https://www.mansonconstruction.com/careers",
+      "status": "INCOMPLETE",
+      "detail": "exception:Error:Page.goto: NS_ERROR_UNKNOWN_HOST\nCall log:\n  - navigating to \"https://www.mansonconstruction.com/careers\", waiting until",
+      "last_attempt": 15,
+      "proof": {
+        "screenshot": "proof/manson-construction_attempt15_success.png",
+        "final_url": "https://www.mansonconstruction.com/careers",
+        "text_hits": [],
+        "url_match": false,
+        "screenshot_ok": true,
+        "filled_count": 0,
+        "eeo_actions": 0,
+        "resume_uploads": 0
+      },
+      "updated_at": "2026-02-21T04:45:13.330181+00:00"
     },
     {
       "company": "Callan Marine",
       "url": "https://www.callanmarineltd.com/careers",
       "status": "INCOMPLETE",
-      "detail": "no_strict_confirmation",
-      "last_attempt": 1,
+      "detail": "exception:Error:Page.goto: NS_ERROR_UNKNOWN_HOST\nCall log:\n  - navigating to \"https://www.callanmarineltd.com/careers\", waiting until \"d",
+      "last_attempt": 15,
       "proof": {
-        "screenshot": "proof/callan-marine_attempt1_success.png",
+        "screenshot": "proof/callan-marine_attempt15_success.png",
         "final_url": "https://www.callanmarineltd.com/careers",
         "text_hits": [],
         "url_match": false,
@@ -93,16 +93,16 @@
         "eeo_actions": 0,
         "resume_uploads": 0
       },
-      "updated_at": "2026-02-21T04:32:35.363205+00:00"
+      "updated_at": "2026-02-21T04:45:13.361874+00:00"
     },
     {
       "company": "Cashman Dredging",
       "url": "https://www.jaycashman.com/careers/",
       "status": "INCOMPLETE",
-      "detail": "timeout_120s_no_confirmation",
-      "last_attempt": 1,
+      "detail": "exception:Error:Page.goto: NS_ERROR_UNKNOWN_HOST\nCall log:\n  - navigating to \"https://www.jaycashman.com/careers/\", waiting until \"domco",
+      "last_attempt": 15,
       "proof": {
-        "screenshot": "proof/cashman-dredging_attempt1_success.png",
+        "screenshot": "proof/cashman-dredging_attempt15_success.png",
         "final_url": "https://www.jaycashman.com/careers/",
         "text_hits": [],
         "url_match": false,
@@ -111,16 +111,16 @@
         "eeo_actions": 0,
         "resume_uploads": 0
       },
-      "updated_at": "2026-02-21T04:33:05.542118+00:00"
+      "updated_at": "2026-02-21T04:45:13.326623+00:00"
     },
     {
       "company": "Viking Dredging",
       "url": "https://www.vikingdredging.com/join-our-team.php",
       "status": "INCOMPLETE",
-      "detail": "no_strict_confirmation",
-      "last_attempt": 1,
+      "detail": "exception:Error:Page.goto: NS_ERROR_UNKNOWN_HOST\nCall log:\n  - navigating to \"https://www.vikingdredging.com/join-our-team.php\", waiting",
+      "last_attempt": 15,
       "proof": {
-        "screenshot": "proof/viking-dredging_attempt1_success.png",
+        "screenshot": "proof/viking-dredging_attempt15_success.png",
         "final_url": "https://www.vikingdredging.com/join-our-team.php",
         "text_hits": [],
         "url_match": false,
@@ -129,16 +129,16 @@
         "eeo_actions": 0,
         "resume_uploads": 0
       },
-      "updated_at": "2026-02-21T04:34:05.260083+00:00"
+      "updated_at": "2026-02-21T04:45:13.721803+00:00"
     },
     {
       "company": "Muddy Water Dredging",
       "url": "https://mwdredging.com/job-opportunities/",
       "status": "INCOMPLETE",
-      "detail": "no_strict_confirmation",
-      "last_attempt": 1,
+      "detail": "exception:Error:Page.goto: NS_ERROR_UNKNOWN_HOST\nCall log:\n  - navigating to \"https://mwdredging.com/job-opportunities/\", waiting until ",
+      "last_attempt": 15,
       "proof": {
-        "screenshot": "proof/muddy-water-dredging_attempt1_success.png",
+        "screenshot": "proof/muddy-water-dredging_attempt15_success.png",
         "final_url": "https://mwdredging.com/job-opportunities/",
         "text_hits": [],
         "url_match": false,
@@ -147,17 +147,17 @@
         "eeo_actions": 0,
         "resume_uploads": 0
       },
-      "updated_at": "2026-02-21T04:34:07.252963+00:00"
+      "updated_at": "2026-02-21T04:45:13.769483+00:00"
     },
     {
       "company": "Orion Government Services",
       "url": "https://oriongov.com",
-      "status": "BLOCKED",
-      "detail": "Blocked - External: dead_domain",
-      "last_attempt": 1,
+      "status": "INCOMPLETE",
+      "detail": "exception:Error:Page.goto: NS_ERROR_UNKNOWN_HOST\nCall log:\n  - navigating to \"https://oriongov.com/\", waiting until \"domcontentloaded\"\n",
+      "last_attempt": 15,
       "proof": {
-        "screenshot": "proof/orion-government-services_attempt1_blocked.png",
-        "final_url": "https://www.hugedomains.com/domain_profile.cfm?d=oriongov.com",
+        "screenshot": "proof/orion-government-services_attempt15_success.png",
+        "final_url": "https://oriongov.com/",
         "text_hits": [],
         "url_match": false,
         "screenshot_ok": true,
@@ -165,17 +165,17 @@
         "eeo_actions": 0,
         "resume_uploads": 0
       },
-      "updated_at": "2026-02-21T04:33:08.050120+00:00"
+      "updated_at": "2026-02-21T04:45:13.778254+00:00"
     },
     {
       "company": "Moran Towing",
       "url": "https://www.morantug.com/careers-at-moran/",
       "status": "INCOMPLETE",
-      "detail": "no_strict_confirmation",
-      "last_attempt": 1,
+      "detail": "exception:Error:Page.goto: NS_ERROR_UNKNOWN_HOST\nCall log:\n  - navigating to \"https://www.morantug.com/careers-at-moran/\", waiting until",
+      "last_attempt": 15,
       "proof": {
-        "screenshot": "proof/moran-towing_attempt1_success.png",
-        "final_url": "https://www.morantug.com/careers-at-moran/how-to-apply/",
+        "screenshot": "proof/moran-towing_attempt15_success.png",
+        "final_url": "https://www.morantug.com/careers-at-moran/",
         "text_hits": [],
         "url_match": false,
         "screenshot_ok": true,
@@ -183,13 +183,13 @@
         "eeo_actions": 0,
         "resume_uploads": 0
       },
-      "updated_at": "2026-02-21T04:34:54.582985+00:00"
+      "updated_at": "2026-02-21T04:45:13.991335+00:00"
     }
   ],
   "summary": {
     "total": 10,
     "complete": 0,
-    "blocked": 2,
-    "incomplete": 8
+    "blocked": 0,
+    "incomplete": 10
   }
 }

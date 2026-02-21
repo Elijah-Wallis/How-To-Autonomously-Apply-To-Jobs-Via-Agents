@@ -1,0 +1,53 @@
+  [REACT-DIAG] {'error': 'no_form'}
+  [SUBMIT-T2] requestSubmit result: requestSubmit_ok
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-NET] POST 200 https://kiewitcareers.kiewit.com/services/jobs/options/facetValues/
+  [CONSOLE] [warning] [JavaScript Warning: "Loading failed for the <script> with source “https://www.googletagmanager.com/gtm.js?id=GTM-TNVG2FN”." {file: "https://kiewitcareers.kiewit.com/Weeks/search/?createNewAlert=false
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [CONSOLE] [error] can't access property "innerHTML", t is undefined
+  [CONSOLE] [error] can't access property "innerHTML", t is undefined
+  [CONSOLE] [error] Network Error
+  [CONSOLE] [error] can't access property "innerHTML", t is undefined
+  [CONSOLE] [error] can't access property "innerHTML", t is undefined
+  [SUBMIT-T2] requestSubmit result: requestSubmit_ok
+  [PW-FILL] BambooHR Playwright fill: 15 fields
+  [SUBMIT-NET] POST 200 https://kiewitcareers.kiewit.com/services/jobs/options/facetValues/
+  [CONSOLE] [warning] [JavaScript Warning: "Loading failed for the <script> with source “https://www.googletagmanager.com/gtm.js?id=GTM-TNVG2FN”." {file: "https://kiewitcareers.kiewit.com/Weeks/search/?createNewAlert=false
+  [REACT-DIAG] {'total': 32, 'empty_count': 1, 'empty': ['disabilityId'], 'required': ['state.value=OK', 'countryId.value=OK'], 'btn_disabled': 'no_btn'}
+  [SUBMIT-T2] requestSubmit result: requestSubmit_ok
+  [SUBMIT-T2] requestSubmit result: requestSubmit_ok
+  [SUBMIT-NET] POST 200 https://kiewitcareers.kiewit.com/services/jobs/options/facetValues/
+  [CONSOLE] [warning] [JavaScript Warning: "Loading failed for the <script> with source “https://www.googletagmanager.com/gtm.js?id=GTM-TNVG2FN”." {file: "https://kiewitcareers.kiewit.com/Weeks/search/?createNewAlert=false
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [PW-FILL] BambooHR Playwright fill: 15 fields
+  [SUBMIT-T2] requestSubmit result: requestSubmit_ok
+  [REACT-DIAG] {'total': 32, 'empty_count': 1, 'empty': ['disabilityId'], 'required': ['state.value=OK', 'countryId.value=OK'], 'btn_disabled': 'no_btn'}
+  [SUBMIT-T2] requestSubmit result: requestSubmit_ok
+  [SUBMIT-NET] POST 200 https://kiewitcareers.kiewit.com/services/jobs/options/facetValues/
+  [CONSOLE] [warning] [JavaScript Warning: "Loading failed for the <script> with source “https://www.googletagmanager.com/gtm.js?id=GTM-TNVG2FN”." {file: "https://kiewitcareers.kiewit.com/Weeks/search/?createNewAlert=false
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [PW-FILL] BambooHR Playwright fill: 15 fields
+  [REACT-DIAG] {'total': 32, 'empty_count': 1, 'empty': ['disabilityId'], 'required': ['state.value=OK', 'countryId.value=OK'], 'btn_disabled': 'no_btn'}
+  [SUBMIT-T2] requestSubmit result: requestSubmit_ok
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+{
+  "total": 10,
+  "complete": 0,
+  "blocked": 1,
+  "incomplete": 9
+}
+{
+  "self_heal": true,
+  "state": {
+    "heal_count": 1,
+    "extra_apply_hints": [
+      "continue"
+    ],
+    "extra_submit_hints": [
+      "confirm"
+    ],
+    "extra_success_markers": [
+      "thanks for applying"
+    ]
+  }
+}
