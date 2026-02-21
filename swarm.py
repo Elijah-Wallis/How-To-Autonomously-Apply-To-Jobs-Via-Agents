@@ -854,19 +854,95 @@ async def worker(
                 eeo_total = max(eeo_total, e)
                 uploaded_total = max(uploaded_total, await upload_resume(page, resume_path))
 
-                # Second fill pass after short wait (catches async-loaded fields like State dropdowns)
+                # Second fill pass after short wait
                 await js_wait(page, 800)
                 f2, e2 = await apply_profile(page, profile)
                 filled_total = max(filled_total, f2)
                 eeo_total = max(eeo_total, e2)
 
+                # BambooHR React-specific: use Playwright fill() for controlled inputs
+                if "bamboohr" in page.url:
+                    bamboo_fields = {
+                        'input[name="firstName"]': profile.get("first_name", ""),
+                        'input[name="lastName"]': profile.get("last_name", ""),
+                        'input[name="email"]': profile.get("email", ""),
+                        'input[name="phone"]': profile.get("phone", ""),
+                        'input[name="streetAddress"]': profile.get("address", ""),
+                        'input[name="city"]': profile.get("city", ""),
+                        'input[name="zip"]': profile.get("zip", ""),
+                        'input[name="dateAvailable"]': "03/10/2026",
+                        'input[name="desiredPay"]': "Negotiable",
+                        'input[name="referredBy"]': "Online Job Board",
+                    }
+                    # Also try label-based selectors
+                    label_fields = {
+                        "First Name": profile.get("first_name", ""),
+                        "Last Name": profile.get("last_name", ""),
+                        "Email": profile.get("email", ""),
+                        "Phone": profile.get("phone", ""),
+                        "Street Address": profile.get("address", ""),
+                        "City": profile.get("city", ""),
+                        "Zip": profile.get("zip", ""),
+                        "Date Available": "03/10/2026",
+                        "Desired Pay": "Negotiable",
+                        "Who Referred You": "Online Job Board",
+                    }
+                    pw_filled = 0
+                    for sel, val in bamboo_fields.items():
+                        if not val:
+                            continue
+                        try:
+                            loc = page.locator(sel)
+                            if await loc.count() > 0:
+                                await loc.first.fill(val, timeout=2000)
+                                pw_filled += 1
+                        except Exception:
+                            pass
+                    # Label-based fill for fields not matched by name
+                    for lbl, val in label_fields.items():
+                        if not val:
+                            continue
+                        try:
+                            loc = page.get_by_label(lbl)
+                            if await loc.count() > 0:
+                                await loc.first.fill(val, timeout=2000)
+                                pw_filled += 1
+                        except Exception:
+                            pass
+                    # Textareas
+                    textarea_fields = {
+                        "career": profile.get("career_goals", "Seeking full-time Deckhand/Tankerman role in maritime industry."),
+                        "experience": profile.get("cover_letter", ""),
+                        "environment": profile.get("work_environment", "Team-oriented maritime operations environment with safety focus."),
+                    }
+                    for keyword, val in textarea_fields.items():
+                        if not val:
+                            continue
+                        try:
+                            textareas = page.locator("textarea")
+                            for i in range(await textareas.count()):
+                                ta = textareas.nth(i)
+                                name = await ta.get_attribute("name") or ""
+                                aria = await ta.get_attribute("aria-label") or ""
+                                ident = (name + " " + aria).lower()
+                                if keyword in ident:
+                                    await ta.fill(val, timeout=2000)
+                                    pw_filled += 1
+                                    break
+                        except Exception:
+                            pass
+                    if pw_filled > 0:
+                        filled_total = max(filled_total, pw_filled)
+                        print(f"  [PW-FILL] BambooHR Playwright fill: {pw_filled} fields", flush=True)
+
                 # BambooHR Fabric UI: handle ALL custom Select dropdowns
                 # BambooHR Fabric UI dropdown handler
                 fabric_selects = [
-                    ('state', ['Texas']),
-                    ('gender', ['Decline to Answer']),
-                    ('ethnicity', ['Black or African American']),
-                    ('disability', ['Decline to Answer']),
+                    ('state', ['Texas', 'TX']),
+                    ('gender', ['Decline to answer', 'Decline to Answer', 'Decline']),
+                    ('ethnicity', ['Black or African American', 'Black']),
+                    ('disability', ['Decline to answer', 'Decline to Answer', 'Decline',
+                                    'I do not wish to answer', 'No', 'None']),
                 ]
                 for field_name, try_values in fabric_selects:
                     opened = await safe_eval(page, f"""() => {{
@@ -874,6 +950,7 @@ async def worker(
                         for (const btn of toggles) {{
                             const label = (btn.getAttribute('aria-label') || '').toLowerCase();
                             if (label.includes('{field_name}') && label.includes('select')) {{
+                                btn.scrollIntoView({{block:'center'}});
                                 btn.click();
                                 return true;
                             }}
@@ -881,15 +958,14 @@ async def worker(
                         return false;
                     }}""", False)
                     if opened:
-                        await js_wait(page, 800)
+                        await js_wait(page, 1200)
+                        clicked = False
                         for try_val in try_values:
                             clicked = await safe_eval(page, f"""() => {{
-                                // Search ALL clickable elements in any open menu/popup
-                                const sels = '[role="option"], [role="menuitem"], .fab-MenuOption, li, span, label, div[tabindex]';
-                                const items = Array.from(document.querySelectorAll(sels));
+                                const items = Array.from(document.querySelectorAll('.fab-MenuOption, .fab-MenuOption__content, [role="option"], [role="menuitem"]'));
                                 for (const item of items) {{
                                     const txt = (item.innerText || item.textContent || '').trim();
-                                    if (txt === '{try_val}') {{
+                                    if (txt.toLowerCase() === '{try_val.lower()}' || txt.toLowerCase().includes('{try_val.lower()}')) {{
                                         item.click();
                                         return true;
                                     }}
@@ -899,48 +975,74 @@ async def worker(
                             if clicked:
                                 await js_wait(page, 400)
                                 break
-                        # Close menu if still open (click elsewhere)
-                        await safe_eval(page, "() => { document.body.click(); }", None)
-                        await js_wait(page, 200)
+                        if not clicked:
+                            # Close the menu by pressing Escape
+                            await safe_eval(page, "() => { document.dispatchEvent(new KeyboardEvent('keydown', {key:'Escape'})); }", None)
+                            await js_wait(page, 200)
 
                 await js_wait(page, 300)
 
-                # Submit — 3-tier strategy: form.requestSubmit(), Playwright click, JS click
+                # Submit — capture network + console for debugging
                 before_url = page.url
+                submit_responses: list[dict] = []
+                console_msgs: list[str] = []
 
-                # Tier 1: Direct form submission (bypasses button click issues)
-                submit_result = await safe_eval(page, """() => {
-                    const form = document.getElementById('job-application-form') || document.querySelector('form');
-                    if (form) {
-                        try { form.requestSubmit(); return 'requestSubmit'; } catch(e) {}
-                        try {
-                            form.dispatchEvent(new Event('submit', {bubbles: true, cancelable: true}));
-                            return 'dispatchSubmit';
-                        } catch(e) {}
-                        try { form.submit(); return 'formSubmit'; } catch(e) {}
-                    }
-                    return 'no_form';
-                }""", "no_form")
+                def _on_resp(resp):
+                    method = resp.request.method
+                    if method in ("POST", "PUT", "PATCH") or "api" in resp.url.lower():
+                        submit_responses.append({"url": resp.url[:120], "status": resp.status, "method": method})
 
-                await js_wait(page, 2000)
+                def _on_console(msg):
+                    if msg.type in ("error", "warning"):
+                        console_msgs.append(f"[{msg.type}] {msg.text[:200]}")
 
-                # Tier 2: Playwright native click on submit button
+                page.on("response", _on_resp)
+                page.on("console", _on_console)
+
                 try:
-                    submit_btn = page.locator('button[type="submit"]')
-                    if await submit_btn.count() > 0:
-                        await submit_btn.first.click(timeout=5000)
-                except Exception:
-                    pass
+                    # Tier 1: Playwright native click (most reliable for React)
+                    try:
+                        submit_btn = page.locator('button[type="submit"]')
+                        if await submit_btn.count() > 0:
+                            await submit_btn.first.scroll_into_view_if_needed(timeout=2000)
+                            await submit_btn.first.click(timeout=5000, force=True)
+                    except Exception as e:
+                        print(f"  [SUBMIT-T1] Click error: {e}", flush=True)
 
-                await js_wait(page, 2000)
+                    await js_wait(page, 3000)
 
-                # Tier 3: JS click with full event sequence
-                await click_hints(page, extra_submit)
+                    # Tier 2: form.requestSubmit() with error capture
+                    if not submit_responses:
+                        submit_err = await safe_eval(page, """() => {
+                            const form = document.getElementById('job-application-form') || document.querySelector('form');
+                            if (!form) return 'no_form_found';
+                            try { form.requestSubmit(); return 'requestSubmit_ok'; }
+                            catch(e) { return 'requestSubmit_err: ' + e.message; }
+                        }""", "eval_error")
+                        print(f"  [SUBMIT-T2] requestSubmit result: {submit_err}", flush=True)
+                        await js_wait(page, 3000)
 
-                # Wait for AJAX response + confirmation rendering
-                await js_wait(page, 5000)
+                    # Tier 3: JS click with full event sequence
+                    if not submit_responses:
+                        await click_hints(page, extra_submit)
+                        await js_wait(page, 3000)
 
-                # If URL changed, wait for new page to load
+                    # Wait for AJAX response
+                    await js_wait(page, 3000)
+
+                    # Log diagnostics
+                    if submit_responses:
+                        for sr in submit_responses:
+                            print(f"  [SUBMIT-NET] {sr.get('method','?')} {sr['status']} {sr['url']}", flush=True)
+                    else:
+                        print(f"  [SUBMIT-NET] No POST requests detected — form may not have submitted", flush=True)
+                    for cm in console_msgs[:5]:
+                        print(f"  [CONSOLE] {cm}", flush=True)
+
+                finally:
+                    page.remove_listener("response", _on_resp)
+                    page.remove_listener("console", _on_console)
+
                 if page.url != before_url:
                     try:
                         await page.wait_for_load_state("domcontentloaded", timeout=5000)
