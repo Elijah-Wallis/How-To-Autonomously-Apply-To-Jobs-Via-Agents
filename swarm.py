@@ -629,7 +629,17 @@ async def run_swarm(attempt: int, batch_size: int, headful: bool) -> dict[str, A
 
     async with async_playwright() as p:
         # HEADLESS + DOM-ONLY: Always headless, pure JS eval
-        browser = await p.chromium.launch(headless=True)
+        # Add sandbox-friendly launch args to avoid crashes
+        browser = await p.chromium.launch(
+            headless=True,
+            args=[
+                "--no-sandbox",
+                "--disable-setuid-sandbox",
+                "--disable-dev-shm-usage",
+                "--disable-gpu",
+                "--disable-software-rasterizer",
+            ]
+        )
         # BATCHING: Process in batches of 3, complete batch before next
         results = []
         for i in range(0, len(TARGETS), batch_size):
