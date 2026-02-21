@@ -904,24 +904,35 @@ async def worker(
 
                 # Try submit — multiple strategies
                 await click_hints(page, extra_submit)
-                # Direct BambooHR/Fabric submit: find button by text content
+                # Direct submit: JS-based click + Playwright locator fallback for React/MUI buttons
                 await safe_eval(page, """() => {
                     const buttons = Array.from(document.querySelectorAll('button'));
                     for (const btn of buttons) {
                         const txt = (btn.innerText || btn.textContent || '').toLowerCase().trim();
-                        if (txt.includes('submit application') || txt.includes('submit')) {
+                        if (txt.includes('submit application') || txt === 'submit') {
                             btn.scrollIntoView({ behavior: 'instant', block: 'center' });
                             btn.focus();
+                            // Full event sequence for React compatibility
+                            btn.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+                            btn.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+                            btn.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
+                            btn.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
                             btn.click();
-                            // Also try native form submit
-                            const form = btn.closest('form');
-                            if (form) { try { form.requestSubmit(btn); } catch(e) {} }
+                            btn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
                             return true;
                         }
                     }
                     return false;
                 }""", False)
-                # Longer wait for AJAX submission + confirmation rendering
+                await js_wait(page, 1000)
+                # Playwright native click fallback (handles React event binding)
+                try:
+                    submit_loc = page.locator('button:has-text("Submit Application"), button:has-text("Submit")')
+                    if await submit_loc.count() > 0:
+                        await submit_loc.first.click(timeout=3000)
+                except Exception:
+                    pass
+                # Wait for AJAX submission + confirmation rendering
                 await js_wait(page, 3000)
                 await reinject(page)
 
