@@ -21,7 +21,7 @@ LOG_DIR = ROOT / "logs"
 PROOF_DIR = ROOT / "proof"
 SOURCE_DIR = ROOT / "proof" / "source"
 
-TTL_SECONDS = 90
+TTL_SECONDS = 120
 MAX_BATCH = 3
 MAX_SELF_HEAL_ATTEMPTS = 15
 
@@ -861,15 +861,14 @@ async def worker(
                 eeo_total = max(eeo_total, e2)
 
                 # BambooHR Fabric UI: handle ALL custom Select dropdowns
+                # BambooHR Fabric UI dropdown handler
                 fabric_selects = [
-                    ('state', ['Texas', 'TX']),
-                    ('gender', ['Decline to Answer', 'Decline']),
-                    ('ethnicity', ['Black or African American', 'Black', 'African American']),
-                    ('race', ['Black or African American', 'Black', 'African American']),
-                    ('disability', ['No', 'Decline to Answer', 'I do not wish to disclose']),
+                    ('state', ['Texas']),
+                    ('gender', ['Decline to Answer']),
+                    ('ethnicity', ['Black or African American']),
+                    ('disability', ['Decline to Answer']),
                 ]
                 for field_name, try_values in fabric_selects:
-                    # Open the dropdown
                     opened = await safe_eval(page, f"""() => {{
                         const toggles = Array.from(document.querySelectorAll('button.fab-SelectToggle, button[data-menu-id]'));
                         for (const btn of toggles) {{
@@ -882,14 +881,15 @@ async def worker(
                         return false;
                     }}""", False)
                     if opened:
-                        await js_wait(page, 500)
-                        # Click the matching option
+                        await js_wait(page, 800)
                         for try_val in try_values:
                             clicked = await safe_eval(page, f"""() => {{
-                                const items = Array.from(document.querySelectorAll('[role="option"], [role="menuitem"], .fab-MenuOption, li'));
+                                // Search ALL clickable elements in any open menu/popup
+                                const sels = '[role="option"], [role="menuitem"], .fab-MenuOption, li, span, label, div[tabindex]';
+                                const items = Array.from(document.querySelectorAll(sels));
                                 for (const item of items) {{
                                     const txt = (item.innerText || item.textContent || '').trim();
-                                    if (txt === '{try_val}' || txt.toLowerCase().includes('{try_val.lower()}')) {{
+                                    if (txt === '{try_val}') {{
                                         item.click();
                                         return true;
                                     }}
@@ -897,8 +897,11 @@ async def worker(
                                 return false;
                             }}""", False)
                             if clicked:
-                                await js_wait(page, 300)
+                                await js_wait(page, 400)
                                 break
+                        # Close menu if still open (click elsewhere)
+                        await safe_eval(page, "() => { document.body.click(); }", None)
+                        await js_wait(page, 200)
 
                 await js_wait(page, 300)
 
