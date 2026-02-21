@@ -935,50 +935,72 @@ async def worker(
                         filled_total = max(filled_total, pw_filled)
                         print(f"  [PW-FILL] BambooHR Playwright fill: {pw_filled} fields", flush=True)
 
-                # BambooHR Fabric UI: handle ALL custom Select dropdowns
-                # BambooHR Fabric UI dropdown handler
-                fabric_selects = [
-                    ('state', ['Texas', 'TX']),
-                    ('gender', ['Decline to answer', 'Decline to Answer', 'Decline']),
-                    ('ethnicity', ['Black or African American', 'Black']),
-                    ('disability', ['Decline to answer', 'Decline to Answer', 'Decline',
-                                    'I do not wish to answer', 'No', 'None']),
-                ]
-                for field_name, try_values in fabric_selects:
-                    opened = await safe_eval(page, f"""() => {{
-                        const toggles = Array.from(document.querySelectorAll('button.fab-SelectToggle, button[data-menu-id]'));
-                        for (const btn of toggles) {{
-                            const label = (btn.getAttribute('aria-label') || '').toLowerCase();
-                            if (label.includes('{field_name}') && label.includes('select')) {{
-                                btn.scrollIntoView({{block:'center'}});
-                                btn.click();
-                                return true;
-                            }}
-                        }}
-                        return false;
-                    }}""", False)
-                    if opened:
-                        await js_wait(page, 1200)
-                        clicked = False
-                        for try_val in try_values:
-                            clicked = await safe_eval(page, f"""() => {{
-                                const items = Array.from(document.querySelectorAll('.fab-MenuOption, .fab-MenuOption__content, [role="option"], [role="menuitem"]'));
-                                for (const item of items) {{
-                                    const txt = (item.innerText || item.textContent || '').trim();
-                                    if (txt.toLowerCase() === '{try_val.lower()}' || txt.toLowerCase().includes('{try_val.lower()}')) {{
-                                        item.click();
-                                        return true;
-                                    }}
+                # BambooHR Fabric UI dropdown handler — sequential to avoid menu overlap
+                if "bamboohr" in page.url:
+                    fabric_selects = [
+                        ('state', ['Texas', 'TX']),
+                        ('gender', ['Decline to answer', 'Decline to Answer', 'Decline']),
+                        ('ethnicity', ['Black or African American', 'Black']),
+                        ('disability', ['Decline to answer', 'Decline to Answer', 'Decline',
+                                        'I do not wish to answer', 'No, I Do Not Have a Disability',
+                                        'No', 'None']),
+                    ]
+                    for field_name, try_values in fabric_selects:
+                        # Only open if still "--Select--"
+                        opened = await safe_eval(page, f"""() => {{
+                            const toggles = Array.from(document.querySelectorAll('button.fab-SelectToggle, button[data-menu-id]'));
+                            for (const btn of toggles) {{
+                                const label = (btn.getAttribute('aria-label') || '').toLowerCase();
+                                if (label.includes('{field_name}') && label.includes('select')) {{
+                                    btn.scrollIntoView({{block:'center'}});
+                                    btn.click();
+                                    return true;
                                 }}
-                                return false;
-                            }}""", False)
-                            if clicked:
-                                await js_wait(page, 400)
-                                break
-                        if not clicked:
-                            # Close the menu by pressing Escape
-                            await safe_eval(page, "() => { document.dispatchEvent(new KeyboardEvent('keydown', {key:'Escape'})); }", None)
-                            await js_wait(page, 200)
+                            }}
+                            return false;
+                        }}""", False)
+                        if opened:
+                            await js_wait(page, 1500)
+                            clicked = False
+                            for try_val in try_values:
+                                clicked = await safe_eval(page, f"""() => {{
+                                    const items = Array.from(document.querySelectorAll('.fab-MenuOption, .fab-MenuOption__content, [role="option"], [role="menuitem"]'));
+                                    for (const item of items) {{
+                                        const txt = (item.innerText || item.textContent || '').trim();
+                                        if (txt.toLowerCase() === '{try_val.lower()}' || txt.toLowerCase().includes('{try_val.lower()}')) {{
+                                            item.click();
+                                            return true;
+                                        }}
+                                    }}
+                                    return false;
+                                }}""", False)
+                                if clicked:
+                                    await js_wait(page, 500)
+                                    break
+                            if not clicked:
+                                await page.keyboard.press("Escape")
+                                await js_wait(page, 300)
+                                # Nuclear fallback: set the hidden <select> value directly
+                                await safe_eval(page, f"""() => {{
+                                    const sel = document.querySelector('select[name="{field_name}Id"], select[name="{field_name}"]');
+                                    if (sel && sel.options) {{
+                                        for (let i = 0; i < sel.options.length; i++) {{
+                                            const txt = sel.options[i].text.toLowerCase();
+                                            if (txt.includes('decline') || txt.includes('no') || txt === 'texas') {{
+                                                sel.value = sel.options[i].value;
+                                                sel.dispatchEvent(new Event('change', {{bubbles: true}}));
+                                                // Also trigger React's nativeInputValueSetter
+                                                const nativeSetter = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value')?.set;
+                                                if (nativeSetter) {{
+                                                    nativeSetter.call(sel, sel.options[i].value);
+                                                    sel.dispatchEvent(new Event('change', {{bubbles: true}}));
+                                                }}
+                                                return true;
+                                            }}
+                                        }}
+                                    }}
+                                    return false;
+                                }}""", False)
 
                 await js_wait(page, 300)
 
@@ -1022,7 +1044,8 @@ async def worker(
 
                 def _on_resp(resp):
                     method = resp.request.method
-                    if method in ("POST", "PUT", "PATCH") or "api" in resp.url.lower():
+                    u = resp.url.lower()
+                    if method in ("POST", "PUT", "PATCH") or "api" in u or "bamboohr" in u:
                         submit_responses.append({"url": resp.url[:120], "status": resp.status, "method": method})
 
                 def _on_console(msg):
