@@ -37,3 +37,47 @@
   [SUBMIT-NET] POST 200 https://jobs.ourcareerpages.com/WebComponents/DocumentUploadHandler.aspx
   [SUBMIT-NET] No POST requests detected — form may not have submitted
   [SUBMIT-T2] requestSubmit result: requestSubmit_ok
+  [PW-FILL] ADP fill: 6 fields
+  [SUBMIT-NET] POST 500 https://jobs.ourcareerpages.com/jobapplication/958904?appSource=jobView&jobSource=MansonConstructionCo&culture=en
+  [CONSOLE] [warning] [JavaScript Warning: "Form contains a file input, but is missing method=POST and enctype=multipart/form-data on the form.  The file will not be sent." {file: "debugger eval code line 290 > eval" line:
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [PW-FILL] ADP fill: 6 fields
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [PW-FILL] ADP fill: 6 fields
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [SUBMIT-T2] requestSubmit result: requestSubmit_ok
+  [SUBMIT-NET] POST 200 https://vikingdredging.applicantpro.com/jobs/
+  [SUBMIT-NET] GET 200 https://go-api-dot-refer-io.appspot.com/api/v3/widget/preflight?api_key=92dc7ad2_apppro_vikingdredging&job_title=&
+  [SUBMIT-NET] GET 200 https://fonts.googleapis.com/css?family=Open+Sans:400,300italic,600
+  [SUBMIT-NET] POST 200 https://vikingdredging.applicantpro.com/includes/link_tracking.php
+  [SUBMIT-NET] GET 200 https://vikingdredging.applicantpro.com/js/web-components/ApIcon-99d599d7.js
+  [CONSOLE] [warning] [JavaScript Warning: "Loading failed for the <script> with source “https://www.googletagmanager.com/gtag/js?id=G-1QL0HHW9LT”." {file: "https://vikingdredging.applicantpro.com/jobs/" line: 316}]
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-T2] requestSubmit result: requestSubmit_ok
+  [SUBMIT-NET] POST 200 https://vikingdredging.applicantpro.com/jobs/
+  [SUBMIT-NET] GET 200 https://fonts.googleapis.com/css?family=Open+Sans:400,300italic,600
+  [SUBMIT-NET] GET 200 https://go-api-dot-refer-io.appspot.com/api/v3/widget/preflight?api_key=92dc7ad2_apppro_vikingdredging&job_title=&
+  [SUBMIT-NET] POST 200 https://vikingdredging.applicantpro.com/includes/link_tracking.php
+  [SUBMIT-NET] GET 200 https://vikingdredging.applicantpro.com/js/web-components/ApIcon-99d599d7.js
+  [CONSOLE] [warning] [JavaScript Warning: "Loading failed for the <script> with source “https://www.googletagmanager.com/gtag/js?id=G-1QL0HHW9LT”." {file: "https://vikingdredging.applicantpro.com/jobs/" line: 316}]
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [SUBMIT-T2] requestSubmit result: requestSubmit_ok
+  [SUBMIT-NET] POST 200 https://vikingdredging.applicantpro.com/jobs/
+  [SUBMIT-NET] GET 200 https://fonts.googleapis.com/css?family=Open+Sans:400,300italic,600
+  [SUBMIT-NET] GET 200 https://go-api-dot-refer-io.appspot.com/api/v3/widget/preflight?api_key=92dc7ad2_apppro_vikingdredging&job_title=&
+  [SUBMIT-NET] POST 200 https://vikingdredging.applicantpro.com/includes/link_tracking.php
+  [SUBMIT-NET] GET 200 https://vikingdredging.applicantpro.com/js/web-components/ApIcon-99d599d7.js
+  [CONSOLE] [warning] [JavaScript Warning: "Loading failed for the <script> with source “https://www.googletagmanager.com/gtag/js?id=G-1QL0HHW9LT”." {file: "https://vikingdredging.applicantpro.com/jobs/" line: 316}]
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-T2] requestSubmit result: requestSubmit_ok
+  [SUBMIT-NET] POST 200 https://vikingdredging.applicantpro.com/jobs/
+  [SUBMIT-NET] GET 200 https://go-api-dot-refer-io.appspot.com/api/v3/widget/preflight?api_key=92dc7ad2_apppro_vikingdredging&job_title=&
+  [SUBMIT-NET] GET 200 https://fonts.googleapis.com/css?family=Open+Sans:400,300italic,600
+  [SUBMIT-NET] POST 200 https://vikingdredging.applicantpro.com/includes/link_tracking.php
+  [SUBMIT-NET] GET 200 https://vikingdredging.applicantpro.com/js/web-components/ApIcon-99d599d7.js
+  [CONSOLE] [warning] [JavaScript Warning: "Loading failed for the <script> with source “https://www.googletagmanager.com/gtag/js?id=G-1QL0HHW9LT”." {file: "https://vikingdredging.applicantpro.com/jobs/" line: 316}]
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [SUBMIT-T2] requestSubmit result: no_form_found
