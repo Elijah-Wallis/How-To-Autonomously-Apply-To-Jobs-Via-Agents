@@ -381,10 +381,16 @@ INJECT_HELPER_JS = r"""
   }
 
   function detectCaptcha() {
-    return !!(
-      document.querySelector('iframe[src*="recaptcha"], iframe[src*="hcaptcha"], iframe[src*="challenges.cloudflare"], iframe[src*="captcha"]') ||
-      document.querySelector('.g-recaptcha, .h-captcha, [data-sitekey], [class*="captcha"][class*="widget"]')
-    );
+    // Only detect visible captcha widgets, not reCAPTCHA v3 buttons
+    const iframe = document.querySelector('iframe[src*="recaptcha"], iframe[src*="hcaptcha"], iframe[src*="challenges.cloudflare"], iframe[src*="captcha"]');
+    if (iframe) return true;
+    // Require data-sitekey for widget detection (avoid false positives from g-recaptcha class on buttons)
+    const widget = document.querySelector('[data-sitekey], .h-captcha[data-sitekey]');
+    if (widget) return true;
+    // Check for visible captcha challenge box
+    const challenge = document.querySelector('[class*="captcha"][class*="widget"]:not(button):not(sdf-button)');
+    if (challenge && challenge.offsetHeight > 50) return true;
+    return false;
   }
 
   function detectDeadDomain() {
@@ -894,56 +900,62 @@ async def worker(
                 except Exception:
                     pass
 
-            # ADP Career Center: use JS to click job listing (sdf-link Shadow DOM)
+            # ADP Career Center: use Playwright native click on sdf-link (SPA)
             cur_url = page.url.lower()  # refresh URL after site-specific clicks
             if "adp.com" in cur_url:
                 await js_wait(page, 3000)  # wait for SPA to render
                 await reinject(page)
-                sdf_count = await safe_eval(page, "() => document.querySelectorAll('sdf-link').length", 0)
-                print(f"  [ADP] sdf-link count: {sdf_count}, URL: {page.url[:80]}", flush=True)
-                job_clicked = await safe_eval(page, """() => {
+                # Find job link ID using JS eval, then click with Playwright
+                job_id = await safe_eval(page, """() => {
                     const keywords = ['oiler', 'deckhand', 'dredge', 'crew', 'marine'];
-                    // Try sdf-link elements first (ADP custom components)
                     for (const el of document.querySelectorAll('sdf-link')) {
                         const txt = (el.textContent || '').trim().toLowerCase();
                         for (const kw of keywords) {
-                            if (txt.includes(kw)) { el.click(); return 'clicked:' + txt; }
-                        }
-                    }
-                    // Fallback: try parent div click
-                    for (const el of document.querySelectorAll('.current-openings-item, [class*="job-item"]')) {
-                        const txt = (el.textContent || '').trim().toLowerCase();
-                        for (const kw of keywords) {
-                            if (txt.includes(kw)) { el.click(); return 'div_clicked:' + kw; }
-                        }
-                    }
-                    // Fallback: any clickable element with job keyword
-                    for (const el of document.querySelectorAll('a, button, [role="link"]')) {
-                        const txt = (el.textContent || '').trim().toLowerCase();
-                        for (const kw of keywords) {
-                            if (txt.includes(kw)) { el.click(); return 'link_clicked:' + txt; }
+                            if (txt.includes(kw)) return el.id || '';
                         }
                     }
                     return '';
                 }""", "")
-                if job_clicked:
-                    print(f"  [ADP] {job_clicked}", flush=True)
-                    await js_wait(page, 3000)
-                    await reinject(page)
-                    # On job detail page — find and click Apply
-                    apply_clicked = await safe_eval(page, """() => {
-                        for (const el of document.querySelectorAll('sdf-link, sdf-button, a, button, [role="button"]')) {
-                            const txt = (el.textContent || '').trim().toLowerCase();
-                            if (txt.includes('apply') && !txt.includes('affirmative')) { el.click(); return 'apply_clicked:' + txt; }
-                        }
-                        return '';
-                    }""", "")
-                    if apply_clicked:
-                        print(f"  [ADP] {apply_clicked}", flush=True)
+                print(f"  [ADP] job_id: {job_id}, URL: {page.url[:80]}", flush=True)
+                if job_id:
+                    try:
+                        # Use Playwright native click (triggers real mouse events for SPA)
+                        el = page.locator(f'#{job_id}')
+                        await el.scroll_into_view_if_needed(timeout=2000)
+                        await el.click(timeout=5000)
+                        print(f"  [ADP] clicked job: {job_id}", flush=True)
+                        await js_wait(page, 3000)
+                        await reinject(page)
+                        # On job detail page — find Apply button
+                        apply_id = await safe_eval(page, """() => {
+                            for (const el of document.querySelectorAll('sdf-link, sdf-button, a, button, [role="button"]')) {
+                                const txt = (el.textContent || '').trim().toLowerCase();
+                                if (txt.includes('apply') && !txt.includes('affirmative') && !txt.includes('action')) {
+                                    return el.id || el.tagName + ':' + txt;
+                                }
+                            }
+                            return '';
+                        }""", "")
+                        print(f"  [ADP] apply_id: {apply_id}", flush=True)
+                        if apply_id and ':' not in apply_id:
+                            apply_el = page.locator(f'#{apply_id}')
+                            await apply_el.click(timeout=5000)
+                        else:
+                            # Fallback: click by text matching
+                            for kw in ["Apply", "APPLY"]:
+                                try:
+                                    btn = page.locator(f'sdf-button:has-text("{kw}"), button:has-text("{kw}"), a:has-text("{kw}")').first
+                                    if await btn.count() > 0:
+                                        await btn.click(timeout=5000)
+                                        break
+                                except Exception:
+                                    pass
                         await js_wait(page, 3000)
                         await handle_navigation(page)
                         page = await follow_popup(page, context)
                         await reinject(page)
+                    except Exception as e:
+                        print(f"  [ADP] error: {e}", flush=True)
 
             # Viking Dredging: "VIEW OUR EMPLYMENT OPPORTUNITIES" (typo)
             if "vikingdredging" in cur_url:
@@ -956,29 +968,27 @@ async def worker(
                 except Exception:
                     pass
 
-            # Moran Towing: saashr.com ATS link (opens in new tab)
+            # Moran Towing: navigate to saashr.com ATS directly
             cur_url2 = page.url.lower()
             if "morantug" in cur_url2:
-                all_links = await safe_eval(page, """() => {
-                    return Array.from(document.querySelectorAll('a')).filter(a => a.href.includes('saashr') || a.href.includes('secure4'))
-                        .map(a => a.href).join(', ');
-                }""", "")
-                print(f"  [MORAN] saashr links: {all_links}", flush=True)
-                moran_clicked = await safe_eval(page, """() => {
-                    const links = document.querySelectorAll('a[href*="saashr.com"], a[href*="secure4"]');
-                    for (const a of links) {
-                        a.removeAttribute('target');
-                        a.click();
-                        return 'saashr_clicked';
+                await js_wait(page, 2000)  # wait for dynamic content
+                saashr_url = await safe_eval(page, """() => {
+                    for (const a of document.querySelectorAll('a')) {
+                        if (a.href && (a.href.includes('saashr') || a.href.includes('secure4'))) {
+                            return a.href;
+                        }
                     }
                     return '';
                 }""", "")
-                if moran_clicked:
-                    print(f"  [MORAN] {moran_clicked}", flush=True)
-                    await js_wait(page, 3000)
-                    await handle_navigation(page)
-                    page = await follow_popup(page, context)
-                    await reinject(page)
+                print(f"  [MORAN] saashr URL: {saashr_url}", flush=True)
+                if saashr_url:
+                    try:
+                        await page.goto(saashr_url, timeout=15000, wait_until="domcontentloaded")
+                        await js_wait(page, 2000)
+                        await reinject(page)
+                        print(f"  [MORAN] navigated to: {page.url[:80]}", flush=True)
+                    except Exception as e:
+                        print(f"  [MORAN] nav error: {e}", flush=True)
 
             # Dismiss any modal dialogs (like resume parse errors on ATS portals)
             # Use Playwright locators for reliable modal button clicks
@@ -1203,6 +1213,60 @@ async def worker(
                                 }}""", False)
 
                 await js_wait(page, 300)
+
+                # ADP Workforce Now: fill registration & application forms
+                if "adp.com" in page.url:
+                    adp_fields = {
+                        'input[name="guestFirstName"]': profile.get("first_name", ""),
+                        'input[name="guestLastName"]': profile.get("last_name", ""),
+                        'input[name="Email"], input[name="email"]': profile.get("email", ""),
+                        'input[name="phone"]': profile.get("phone", ""),
+                    }
+                    adp_label_fields = {
+                        "First Name": profile.get("first_name", ""),
+                        "Last Name": profile.get("last_name", ""),
+                        "Email": profile.get("email", ""),
+                        "Mobile Number": profile.get("phone", ""),
+                        "Phone": profile.get("phone", ""),
+                        "Street Address": profile.get("address", ""),
+                        "City": profile.get("city", ""),
+                        "Zip": profile.get("zip", ""),
+                    }
+                    adp_filled = 0
+                    for sel, val in adp_fields.items():
+                        if not val:
+                            continue
+                        try:
+                            loc = page.locator(sel)
+                            if await loc.count() > 0:
+                                await loc.first.fill(val, timeout=2000)
+                                adp_filled += 1
+                        except Exception:
+                            pass
+                    for lbl, val in adp_label_fields.items():
+                        if not val:
+                            continue
+                        try:
+                            loc = page.get_by_label(lbl)
+                            if await loc.count() > 0:
+                                await loc.first.fill(val, timeout=2000)
+                                adp_filled += 1
+                        except Exception:
+                            pass
+                    if adp_filled > 0:
+                        filled_total = max(filled_total, adp_filled)
+                        print(f"  [PW-FILL] ADP fill: {adp_filled} fields", flush=True)
+                    # Click Continue/Submit on ADP
+                    for btn_id in ["recruitment_login_recaptcha", "recruitment_login_submit"]:
+                        try:
+                            btn = page.locator(f'#{btn_id}')
+                            if await btn.count() > 0 and await btn.is_visible():
+                                await btn.click(timeout=5000)
+                                await js_wait(page, 3000)
+                                await reinject(page)
+                                break
+                        except Exception:
+                            pass
 
                 # Multi-step form: advance to next page after filling
                 cur = page.url.lower()
