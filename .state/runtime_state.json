@@ -1,12 +1,13 @@
 {
-  "heal_count": 6,
+  "heal_count": 15,
   "extra_apply_hints": [
     "continue",
     "next",
     "proceed",
     "begin application",
     "start",
-    "quick apply"
+    "quick apply",
+    "view details"
   ],
   "extra_submit_hints": [
     "confirm",
