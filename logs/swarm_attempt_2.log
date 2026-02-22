@@ -15,3 +15,15 @@
   [PW-FILL] BambooHR Playwright fill: 15 fields
   [SUBMIT-NET] POST 200 https://kiewitcareers.kiewit.com/services/jobs/options/facetValues/
   [CONSOLE] [warning] [JavaScript Warning: "Loading failed for the <script> with source “https://www.googletagmanager.com/gtm.js?id=GTM-TNVG2FN”." {file: "https://kiewitcareers.kiewit.com/Weeks/search/?createNewAlert=false
+  [SUBMIT-T2] requestSubmit result: requestSubmit_ok
+  [REACT-DIAG] {'error': 'no_form'}
+  [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-NET] POST 200 https://kiewitcareers.kiewit.com/services/jobs/options/facetValues/
+  [CONSOLE] [warning] [JavaScript Warning: "Loading failed for the <script> with source “https://www.googletagmanager.com/gtm.js?id=GTM-TNVG2FN”." {file: "https://kiewitcareers.kiewit.com/Weeks/search/?createNewAlert=false
+  [SUBMIT-T2] requestSubmit result: requestSubmit_ok
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [FETCH-LOG] [{"type":"xhr","url":"https://staticfe.bamboohr.com/assets/icons/caret-down-solid.svg?cancelToken=%7B%22token%22:%7B%22pro","method":"GET"},{"type":"xhr","url":"https://staticfe.bamboohr.com/assets/icons/up-from-line-regular.svg?cancelToken=%7B%22token%22:%7B%2","method":"GET"},{"type":"xhr","url":"https://staticfe.bamboohr.com/assets/icons/file-lines-regular.svg?cancelToken=%7B%22token%22:%7B%22p","method":"GET"},{"type":"xhr","url":"https://staticfe.bamboohr.com/assets/icons/calendar-regular.svg?cancelToken=%7B%22token%22:%7B%22pro","method":"GET"},{"type":"xhr","url":"https://staticfe.bamboohr.com/assets/icons/circle-question-solid.svg?cancelToken=%7B%22token%22:%7B%","method":"GET"},{"type":"xhr","url":"https://staticfe.bamboohr.com/assets/icons/circle-check-regular.svg?cancelToken=%7B%22token%22:%7B%2","method":"GET"},{"type":"xhr","url":"/ajax/get_countries","method":"GET"},{"type":"xhr","url":"https://staticfe.bamboohr.com/assets/icons/xmark-regular.svg?cancelToken=%7B%22token%22:%7B%22promis","method":"GET"},{"type":"xhr","url":"/ajax/get_states?country=1","method":"GET"},{"type":"xhr","url":"https://staticfe.bamboohr.com/assets/icons/circle-exclamation-solid.svg?cancelToken=%7B%22token%22:%","method":"GET"},{"type":"xhr","url":"/ajax/files/attachTemporary.php","method":"POST"},{"type":"xhr","url":"https://staticfe.bamboohr.com/assets/icons/circle-xmark-solid.svg?cancelToken=%7B%22token%22:%7B%22p","method":"GET"},{"type":"xhr","url":"https://staticfe.bamboohr.com/assets/icons/magnifying-glass-regular.svg?cancelToken=%7B%22token%22:%","method":"GET"},{"type":"xhr","url":"/careers/215/add","method":"POST"}]
+  [SUBMIT-NET] POST 200 https://kiewitcareers.kiewit.com/services/jobs/options/facetValues/
+  [CONSOLE] [warning] [JavaScript Warning: "Loading failed for the <script> with source “https://www.googletagmanager.com/gtm.js?id=GTM-TNVG2FN”." {file: "https://kiewitcareers.kiewit.com/Weeks/search/?createNewAlert=false
+  [ADP] job_id: lblTitle_9200841014585_1, URL: https://workforcenow.adp.com/mascsr/default/mdf/recruitment/recruitment.html?ccI
+  [ADP] clicked job: lblTitle_9200841014585_1
