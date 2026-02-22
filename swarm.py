@@ -129,10 +129,11 @@ SUBMIT_HINTS = [
     "submit your application", "apply", "confirm",
 ]
 NAV_HINTS = [
-    "careers", "view our employment", "how to apply", "apply today",
+    "careers", "view our employment", "view our emplyment",
+    "how to apply", "apply today",
     "send resume", "read more", "view opportunities",
     "see open positions", "current openings", "job openings",
-    "open positions", "join our team", "employment",
+    "open positions", "join our team", "employment", "emplyment",
 ]
 
 # ---------------------------------------------------------------------------
@@ -396,6 +397,11 @@ INJECT_HELPER_JS = r"""
     );
   }
 
+  function detectLoginBlock() {
+    const b = norm(document.body ? document.body.innerText : '');
+    return /already have an account|please log in to continue|sign in to continue|create an account to apply/i.test(b);
+  }
+
   function detectSmsBlock() {
     const b = norm(document.body ? document.body.innerText : '');
     return /enter.*verification.*code|verify.*phone.*number|text.*code.*sent|sms.*verification/i.test(b);
@@ -419,7 +425,7 @@ INJECT_HELPER_JS = r"""
 
   window.__SWM2__ = {
     fillProfile, applyEeo, clickByHints, findAndClickJobLink, clickApplyATS,
-    detectCaptcha, detectDeadDomain, detectSmsBlock,
+    detectCaptcha, detectDeadDomain, detectSmsBlock, detectLoginBlock,
     getVisibleText, getPageSource, countInputs
   };
 })();
@@ -874,6 +880,106 @@ async def worker(
                     await handle_navigation(page)
                     page = await follow_popup(page, context)
 
+            # ── SITE-SPECIFIC: Playwright click for stubborn buttons ──
+            cur_url = page.url.lower()
+
+            # Callan Marine: "APPLY NOW" oval button (multi-line text, styled <a>)
+            if "callanmarine" in cur_url:
+                try:
+                    apply_btn = page.locator('a:has-text("APPLY"), a:has-text("Apply Now"), a:has-text("APPLY NOW")').first
+                    if await apply_btn.count() > 0:
+                        await apply_btn.click(timeout=5000)
+                        await handle_navigation(page)
+                        page = await follow_popup(page, context)
+                except Exception:
+                    pass
+
+            # ADP Career Center: use JS to click job listing (sdf-link Shadow DOM)
+            cur_url = page.url.lower()  # refresh URL after site-specific clicks
+            if "adp.com" in cur_url:
+                await js_wait(page, 3000)  # wait for SPA to render
+                await reinject(page)
+                sdf_count = await safe_eval(page, "() => document.querySelectorAll('sdf-link').length", 0)
+                print(f"  [ADP] sdf-link count: {sdf_count}, URL: {page.url[:80]}", flush=True)
+                job_clicked = await safe_eval(page, """() => {
+                    const keywords = ['oiler', 'deckhand', 'dredge', 'crew', 'marine'];
+                    // Try sdf-link elements first (ADP custom components)
+                    for (const el of document.querySelectorAll('sdf-link')) {
+                        const txt = (el.textContent || '').trim().toLowerCase();
+                        for (const kw of keywords) {
+                            if (txt.includes(kw)) { el.click(); return 'clicked:' + txt; }
+                        }
+                    }
+                    // Fallback: try parent div click
+                    for (const el of document.querySelectorAll('.current-openings-item, [class*="job-item"]')) {
+                        const txt = (el.textContent || '').trim().toLowerCase();
+                        for (const kw of keywords) {
+                            if (txt.includes(kw)) { el.click(); return 'div_clicked:' + kw; }
+                        }
+                    }
+                    // Fallback: any clickable element with job keyword
+                    for (const el of document.querySelectorAll('a, button, [role="link"]')) {
+                        const txt = (el.textContent || '').trim().toLowerCase();
+                        for (const kw of keywords) {
+                            if (txt.includes(kw)) { el.click(); return 'link_clicked:' + txt; }
+                        }
+                    }
+                    return '';
+                }""", "")
+                if job_clicked:
+                    print(f"  [ADP] {job_clicked}", flush=True)
+                    await js_wait(page, 3000)
+                    await reinject(page)
+                    # On job detail page — find and click Apply
+                    apply_clicked = await safe_eval(page, """() => {
+                        for (const el of document.querySelectorAll('sdf-link, sdf-button, a, button, [role="button"]')) {
+                            const txt = (el.textContent || '').trim().toLowerCase();
+                            if (txt.includes('apply') && !txt.includes('affirmative')) { el.click(); return 'apply_clicked:' + txt; }
+                        }
+                        return '';
+                    }""", "")
+                    if apply_clicked:
+                        print(f"  [ADP] {apply_clicked}", flush=True)
+                        await js_wait(page, 3000)
+                        await handle_navigation(page)
+                        page = await follow_popup(page, context)
+                        await reinject(page)
+
+            # Viking Dredging: "VIEW OUR EMPLYMENT OPPORTUNITIES" (typo)
+            if "vikingdredging" in cur_url:
+                try:
+                    emp_btn = page.locator('a:has-text("EMPLYMENT"), a:has-text("EMPLOYMENT"), a:has-text("VIEW OUR")').first
+                    if await emp_btn.count() > 0:
+                        await emp_btn.click(timeout=5000)
+                        await handle_navigation(page)
+                        page = await follow_popup(page, context)
+                except Exception:
+                    pass
+
+            # Moran Towing: saashr.com ATS link (opens in new tab)
+            cur_url2 = page.url.lower()
+            if "morantug" in cur_url2:
+                all_links = await safe_eval(page, """() => {
+                    return Array.from(document.querySelectorAll('a')).filter(a => a.href.includes('saashr') || a.href.includes('secure4'))
+                        .map(a => a.href).join(', ');
+                }""", "")
+                print(f"  [MORAN] saashr links: {all_links}", flush=True)
+                moran_clicked = await safe_eval(page, """() => {
+                    const links = document.querySelectorAll('a[href*="saashr.com"], a[href*="secure4"]');
+                    for (const a of links) {
+                        a.removeAttribute('target');
+                        a.click();
+                        return 'saashr_clicked';
+                    }
+                    return '';
+                }""", "")
+                if moran_clicked:
+                    print(f"  [MORAN] {moran_clicked}", flush=True)
+                    await js_wait(page, 3000)
+                    await handle_navigation(page)
+                    page = await follow_popup(page, context)
+                    await reinject(page)
+
             # Dismiss any modal dialogs (like resume parse errors on ATS portals)
             # Use Playwright locators for reliable modal button clicks
             for btn_text in ["OK", "Ok", "Close", "Dismiss", "Got it"]:
@@ -914,6 +1020,19 @@ async def worker(
                         break
                 except Exception:
                     pass
+
+            # Check for login/account blocker
+            login_block = await safe_eval(page, "() => window.__SWM2__ ? window.__SWM2__.detectLoginBlock() : false", False)
+            if login_block:
+                status = "BLOCKED"
+                detail = "Blocked - External: login_required"
+                png = PROOF_DIR / f"{slug}_attempt{attempt}_blocked.png"
+                try:
+                    await page.screenshot(path=str(png), full_page=True)
+                except Exception:
+                    pass
+                proof = {"screenshot": f"proof/{png.name}", "final_url": page.url, "text_hits": [], "url_match": False, "screenshot_ok": png.exists()}
+                return
 
             # ── PHASE 3: Fill, upload, EEO, submit (repeat) ──────────
             for cycle in range(4):
@@ -1084,6 +1203,32 @@ async def worker(
                                 }}""", False)
 
                 await js_wait(page, 300)
+
+                # Multi-step form: advance to next page after filling
+                cur = page.url.lower()
+                if "ourcareerpages" in cur or "entertimeonline" in cur or "careers" in cur:
+                    # Click Continue/Next/Save & Continue on multi-step forms
+                    for step_text in ["Continue", "NEXT", "Next", "Save & Continue",
+                                       "Save and Continue", "NEXT: CONTACT INFO",
+                                       "Submit Application", "Submit"]:
+                        try:
+                            loc = page.locator(f'button:has-text("{step_text}"), a:has-text("{step_text}"), input[type="submit"][value*="{step_text}"]').first
+                            if await loc.count() > 0 and await loc.is_visible():
+                                await loc.click(timeout=3000)
+                                await js_wait(page, 2000)
+                                await reinject(page)
+                                break
+                        except Exception:
+                            pass
+                    # Dismiss error dialogs that appear after form actions
+                    for dismiss_text in ["OK", "Close", "Dismiss"]:
+                        try:
+                            d = page.locator(f'button:has-text("{dismiss_text}")').first
+                            if await d.count() > 0 and await d.is_visible():
+                                await d.click(timeout=1000)
+                                await js_wait(page, 500)
+                        except Exception:
+                            pass
 
                 # Clear any honeypot fields (anti-bot traps)
                 await safe_eval(page, """() => {
@@ -1256,8 +1401,8 @@ async def worker(
             proof["eeo_actions"] = eeo_total
             proof["resume_uploads"] = uploaded_total
 
-            # Capture diagnostic source for all high-fill attempts
-            if filled_total > 3:
+            # Capture diagnostic source for ALL attempts (not just high-fill)
+            if True:
                 diag_src = str(await safe_eval(page, "() => window.__SWM2__ ? window.__SWM2__.getPageSource() : ''", "") or "")
                 if diag_src:
                     dp = SOURCE_DIR / f"{slug}_attempt{attempt}_diag.html"
