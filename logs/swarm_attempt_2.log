@@ -34,3 +34,6 @@
   [SUBMIT-NET] POST 500 https://jobs.ourcareerpages.com/WebComponents/DocumentUploadHandler.aspx
   [SUBMIT-NET] POST 200 https://jobs.ourcareerpages.com/WebComponents/DocumentUploadHandler.aspx
   [SUBMIT-T2] requestSubmit result: no_form_found
+  [SUBMIT-NET] POST 200 https://jobs.ourcareerpages.com/WebComponents/DocumentUploadHandler.aspx
+  [SUBMIT-NET] No POST requests detected — form may not have submitted
+  [SUBMIT-T2] requestSubmit result: requestSubmit_ok
