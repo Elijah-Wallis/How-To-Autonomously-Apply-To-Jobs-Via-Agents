@@ -1,0 +1,28 @@
+{
+  "slug": "cashman-dredging",
+  "attempt": 1,
+  "strict_hits": [
+    "thank you for applying",
+    "your application has been submitted",
+    "we have received your application",
+    "application number",
+    "application confirmation",
+    "application has been submitted"
+  ],
+  "compat_additions": [
+    "application received",
+    "application submitted",
+    "confirmation",
+    "thank you"
+  ],
+  "url_match": true,
+  "final_url": "http://127.0.0.1:8765/company/cashman-dredging/application-confirmation",
+  "contexts": [
+    "application confirmation\n\nthank you for applying to cashman dredging.\n\nyour application has been submitted successfully.\n\nwe have received your application and our mari",
+    "application confirmation\n\nthank you for applying to cashman dredging.\n\nyour application has been submitted successfully.\n\nwe have received your application and our maritime hiring team will review it shortly.\n\napplication numb",
+    "plication confirmation\n\nthank you for applying to cashman dredging.\n\nyour application has been submitted successfully.\n\nwe have received your application and our maritime hiring team will review it shortly.\n\napplication number: mock-cashman-dredging ",
+    "s been submitted successfully.\n\nwe have received your application and our maritime hiring team will review it shortly.\n\napplication number: mock-cashman-dredging ",
+    "application confirmation\n\nthank you for applying to cashman dredging.\n\nyour application has been submitted successfully.\n\nwe have received your ",
+    "application confirmation\n\nthank you for applying to cashman dredging.\n\nyour application has been submitted successfully.\n\nwe have received your application and our maritime hiring team will review it shortly.\n\napplication numb"
+  ]
+}

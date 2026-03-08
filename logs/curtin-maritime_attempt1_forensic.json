@@ -2,16 +2,27 @@
   "slug": "curtin-maritime",
   "attempt": 1,
   "strict_hits": [
-    "your application was submitted",
-    "application was submitted successfully"
+    "thank you for applying",
+    "your application has been submitted",
+    "we have received your application",
+    "application number",
+    "application confirmation",
+    "application has been submitted"
   ],
   "compat_additions": [
-    "application submitted"
+    "application received",
+    "application submitted",
+    "confirmation",
+    "thank you"
   ],
-  "url_match": false,
-  "final_url": "https://curtinmaritime.bamboohr.com/careers/215",
+  "url_match": true,
+  "final_url": "http://127.0.0.1:8765/company/curtin-maritime/application-confirmation",
   "contexts": [
-    "cy policy\njob openings\nmaritime training program (deckhand, mate, captain)\nshipyard - long beach, california\nthank you\n\nyour application was submitted successfully\n\nsee all job openings\nlink to this job\n\nlocation\n\nlong beach, california\n\ndepartment\n\nshipyard\n\nemployment",
-    "licy\njob openings\nmaritime training program (deckhand, mate, captain)\nshipyard - long beach, california\nthank you\n\nyour application was submitted successfully\n\nsee all job openings\nlink to this job\n\nlocation\n\nlong beach, california\n\ndepartment\n\nshipyard\n\nemployment type\n\nfull-t"
+    "application confirmation\n\nthank you for applying to curtin maritime.\n\nyour application has been submitted successfully.\n\nwe have received your application and our marit",
+    "application confirmation\n\nthank you for applying to curtin maritime.\n\nyour application has been submitted successfully.\n\nwe have received your application and our maritime hiring team will review it shortly.\n\napplication numb",
+    "pplication confirmation\n\nthank you for applying to curtin maritime.\n\nyour application has been submitted successfully.\n\nwe have received your application and our maritime hiring team will review it shortly.\n\napplication number: mock-curtin-maritime ",
+    "s been submitted successfully.\n\nwe have received your application and our maritime hiring team will review it shortly.\n\napplication number: mock-curtin-maritime ",
+    "application confirmation\n\nthank you for applying to curtin maritime.\n\nyour application has been submitted successfully.\n\nwe have received your a",
+    "application confirmation\n\nthank you for applying to curtin maritime.\n\nyour application has been submitted successfully.\n\nwe have received your application and our maritime hiring team will review it shortly.\n\napplication numb"
   ]
 }

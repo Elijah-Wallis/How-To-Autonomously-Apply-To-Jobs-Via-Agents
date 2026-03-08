@@ -1,0 +1,28 @@
+{
+  "slug": "manson-construction",
+  "attempt": 1,
+  "strict_hits": [
+    "thank you for applying",
+    "your application has been submitted",
+    "we have received your application",
+    "application number",
+    "application confirmation",
+    "application has been submitted"
+  ],
+  "compat_additions": [
+    "application received",
+    "application submitted",
+    "confirmation",
+    "thank you"
+  ],
+  "url_match": true,
+  "final_url": "http://127.0.0.1:8765/company/manson-construction/application-confirmation",
+  "contexts": [
+    "application confirmation\n\nthank you for applying to manson construction.\n\nyour application has been submitted successfully.\n\nwe have received your application and our m",
+    "application confirmation\n\nthank you for applying to manson construction.\n\nyour application has been submitted successfully.\n\nwe have received your application and our maritime hiring team will review it shortly.\n\napplication numb",
+    "cation confirmation\n\nthank you for applying to manson construction.\n\nyour application has been submitted successfully.\n\nwe have received your application and our maritime hiring team will review it shortly.\n\napplication number: mock-manson-construction ",
+    "s been submitted successfully.\n\nwe have received your application and our maritime hiring team will review it shortly.\n\napplication number: mock-manson-construction ",
+    "application confirmation\n\nthank you for applying to manson construction.\n\nyour application has been submitted successfully.\n\nwe have received yo",
+    "application confirmation\n\nthank you for applying to manson construction.\n\nyour application has been submitted successfully.\n\nwe have received your application and our maritime hiring team will review it shortly.\n\napplication numb"
+  ]
+}

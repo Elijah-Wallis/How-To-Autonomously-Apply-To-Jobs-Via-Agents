@@ -1,0 +1,28 @@
+{
+  "slug": "moran-towing",
+  "attempt": 1,
+  "strict_hits": [
+    "thank you for applying",
+    "your application has been submitted",
+    "we have received your application",
+    "application number",
+    "application confirmation",
+    "application has been submitted"
+  ],
+  "compat_additions": [
+    "application received",
+    "application submitted",
+    "confirmation",
+    "thank you"
+  ],
+  "url_match": true,
+  "final_url": "http://127.0.0.1:8765/company/moran-towing/application-confirmation",
+  "contexts": [
+    "application confirmation\n\nthank you for applying to moran towing.\n\nyour application has been submitted successfully.\n\nwe have received your application and our maritime",
+    "application confirmation\n\nthank you for applying to moran towing.\n\nyour application has been submitted successfully.\n\nwe have received your application and our maritime hiring team will review it shortly.\n\napplication numb",
+    "application confirmation\n\nthank you for applying to moran towing.\n\nyour application has been submitted successfully.\n\nwe have received your application and our maritime hiring team will review it shortly.\n\napplication number: mock-moran-towing ",
+    "s been submitted successfully.\n\nwe have received your application and our maritime hiring team will review it shortly.\n\napplication number: mock-moran-towing ",
+    "application confirmation\n\nthank you for applying to moran towing.\n\nyour application has been submitted successfully.\n\nwe have received your appl",
+    "application confirmation\n\nthank you for applying to moran towing.\n\nyour application has been submitted successfully.\n\nwe have received your application and our maritime hiring team will review it shortly.\n\napplication numb"
+  ]
+}
