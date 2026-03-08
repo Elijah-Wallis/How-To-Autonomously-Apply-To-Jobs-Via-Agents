@@ -630,7 +630,7 @@ def load_profile() -> dict[str, Any]:
     profile = read_json(PROFILE_PATH, {})
     profile.setdefault("first_name", "Elijah")
     profile.setdefault("last_name", "Wallis")
-    profile.setdefault("email", "elijahcwallis@gmail.com")
+    profile.setdefault("email", "elijah.wallis@email.com")
     profile.setdefault("phone", "985-991-4360")
     profile.setdefault("address_line1", "3201 Wynwood Dr")
     profile.setdefault("city", "Plano")
@@ -638,7 +638,22 @@ def load_profile() -> dict[str, Any]:
     profile.setdefault("zip", "75074")
     profile.setdefault("resume_path", "./resume.pdf")
     profile.setdefault("address", profile.get("address_line1", ""))
-    profile.setdefault("sea_days_note", "250 documented sea days with company letters attached.")
+    profile.setdefault("twic", "TWIC Holder")
+    profile.setdefault("sea_days_documented", 250)
+    profile.setdefault("years_maritime_experience", 3)
+    profile.setdefault(
+        "uscg_coursework_completed",
+        [
+            "Able Seaman (AB)",
+            "RFPNW",
+            "Tank Barge Dangerous Liquids (DL)",
+            "Tank Barge Liquid Gas (LG)",
+            "STCW Basic Training",
+            "PSC",
+            "VPDSD",
+        ],
+    )
+    profile.setdefault("sea_days_note", "250 documented deck days and 3 years of maritime experience across offshore drillships and inland tug/barge operations.")
     profile.setdefault(
         "eeo_defaults",
         {"race": "Black or African American", "veteran": "No", "disability": "No"},
