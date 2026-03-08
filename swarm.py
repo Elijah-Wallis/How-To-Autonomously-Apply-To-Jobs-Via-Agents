@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import os
 import re
 from datetime import datetime, timezone
 from pathlib import Path
@@ -86,7 +87,7 @@ COMPAT_MAP: dict[str, list[str]] = {
     ],
 }
 
-TARGETS = [
+DEFAULT_TARGETS = [
     {"company": "Curtin Maritime", "url": "https://curtinmaritime.bamboohr.com/jobs"},
     {"company": "Great Lakes Dredge & Dock", "url": "https://gldd.com/careers/"},
     {"company": "Weeks Marine", "url": "https://kiewitcareers.kiewit.com/Weeks/go/Weeks_Interns-Entry-Level/9383100/"},
@@ -98,6 +99,7 @@ TARGETS = [
     {"company": "Orion Government Services", "url": "https://oriongov.com"},
     {"company": "Moran Towing", "url": "https://secure4.saashr.com/ta/6084283.careers?CareersSearch"},
 ]
+TARGETS = list(DEFAULT_TARGETS)
 
 # Network blocking: images, video, fonts, trackers — but ALLOW CSS (needed for rendering)
 BLOCKED_RESOURCE_TYPES = {"image", "media", "font"}
@@ -470,6 +472,40 @@ def read_json(path: Path, default: Any) -> Any:
 def write_json(path: Path, payload: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+
+def load_targets_file(path: Path) -> list[dict[str, str]]:
+    payload = read_json(path, [])
+    if not isinstance(payload, list):
+        raise ValueError(f"Targets file must contain a JSON list: {path}")
+    targets: list[dict[str, str]] = []
+    for item in payload:
+        if not isinstance(item, dict):
+            continue
+        company = str(item.get("company", "")).strip()
+        url = str(item.get("url", "")).strip()
+        if company and url:
+            targets.append({"company": company, "url": url})
+    if not targets:
+        raise ValueError(f"No valid targets found in {path}")
+    return targets
+
+
+def configure_runtime(args: argparse.Namespace) -> None:
+    global TARGETS, TTL_SECONDS
+
+    targets_file = args.targets_file or os.getenv("SWARM_TARGETS_FILE", "").strip()
+    if targets_file:
+        TARGETS = load_targets_file(Path(targets_file))
+    else:
+        TARGETS = list(DEFAULT_TARGETS)
+
+    ttl_override = args.ttl_seconds
+    if ttl_override is None:
+        raw_ttl = os.getenv("SWARM_TTL_SECONDS", "").strip()
+        ttl_override = int(raw_ttl) if raw_ttl else None
+    if ttl_override is not None:
+        TTL_SECONDS = max(15, int(ttl_override))
 
 
 def dedupe_keep_order(values: list[str]) -> list[str]:
@@ -1995,11 +2031,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--batch-size", type=int, default=3)
     parser.add_argument("--headful", action="store_true")
     parser.add_argument("--self-heal", action="store_true")
+    parser.add_argument("--targets-file")
+    parser.add_argument("--ttl-seconds", type=int)
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
+    configure_runtime(args)
     if args.self_heal:
         state = self_heal(max(1, int(args.attempt)))
         print(json.dumps({"self_heal": True, "state": state}, indent=2))

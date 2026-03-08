@@ -6,22 +6,67 @@ cd "$ROOT"
 
 MAX_RETRIES=15
 VENV="$ROOT/.venv"
+MOCK_PORT="${MOCK_PORT:-8765}"
+MOCK_TARGETS="$ROOT/mock_targets.json"
+MOCK_LOG="$ROOT/logs/mock_ats.log"
+PYTHON_BIN=""
+PIP_BIN=()
 
 mkdir -p logs proof .state
 
+cleanup() {
+  if [ -n "${MOCK_PID:-}" ] && kill -0 "$MOCK_PID" >/dev/null 2>&1; then
+    kill "$MOCK_PID" >/dev/null 2>&1 || true
+    wait "$MOCK_PID" 2>/dev/null || true
+  fi
+}
+
+trap cleanup EXIT
+
 if [ ! -x "$VENV/bin/python" ]; then
-  python3 -m venv "$VENV"
+  python3 -m venv "$VENV" >/dev/null 2>&1 || true
 fi
 
-"$VENV/bin/pip" install --quiet --upgrade pip playwright
-"$VENV/bin/python" -m playwright install chromium >/dev/null
+if [ -x "$VENV/bin/python" ] && [ -x "$VENV/bin/pip" ]; then
+  PYTHON_BIN="$VENV/bin/python"
+  PIP_BIN=("$VENV/bin/pip")
+  "${PIP_BIN[@]}" install --quiet --upgrade pip playwright
+else
+  PYTHON_BIN="python3"
+  PIP_BIN=("python3" "-m" "pip")
+  "${PIP_BIN[@]}" install --user --quiet --upgrade playwright
+fi
+
+"$PYTHON_BIN" -m playwright install chromium >/dev/null
+
+"$PYTHON_BIN" scripts/mock_maritime_ats.py --host 127.0.0.1 --port "$MOCK_PORT" --targets-out "$MOCK_TARGETS" >"$MOCK_LOG" 2>&1 &
+MOCK_PID=$!
+
+"$PYTHON_BIN" - <<PY
+import sys
+import time
+import urllib.request
+
+url = "http://127.0.0.1:${MOCK_PORT}/healthz"
+deadline = time.time() + 20
+while time.time() < deadline:
+    try:
+        with urllib.request.urlopen(url, timeout=2) as resp:
+            if resp.read().decode().strip() == "ok":
+                print("mock server ready")
+                sys.exit(0)
+    except Exception:
+        time.sleep(0.25)
+print("mock server failed to start")
+sys.exit(1)
+PY
 
 for attempt in $(seq 1 "$MAX_RETRIES"); do
   echo "=== SWARM ATTEMPT ${attempt}/${MAX_RETRIES} ==="
 
-  "$VENV/bin/python" swarm.py --attempt "$attempt" --batch-size 3 2>&1 | tee "logs/swarm_attempt_${attempt}.log" || true
+  "$PYTHON_BIN" swarm.py --attempt "$attempt" --batch-size 3 --targets-file "$MOCK_TARGETS" --ttl-seconds 45 2>&1 | tee "logs/swarm_attempt_${attempt}.log" || true
 
-  if "$VENV/bin/python" - <<'PY'
+  if "$PYTHON_BIN" - <<'PY'
 import json
 import pathlib
 import sys
@@ -72,17 +117,11 @@ print("COMPLETE")
 sys.exit(0)
 PY
   then
-    git add -A
-    git commit -m "green: autonomous maritime swarm $(date -u +%Y-%m-%dT%H:%M:%SZ)" || true
-    git branch -M main
-    if git remote get-url origin >/dev/null 2>&1; then
-      git push origin main
-    fi
     echo "COMPLETE"
     exit 0
   fi
 
-  "$VENV/bin/python" swarm.py --self-heal --attempt "$attempt" 2>&1 | tee -a "logs/swarm_attempt_${attempt}.log"
+  "$PYTHON_BIN" swarm.py --self-heal --attempt "$attempt" --targets-file "$MOCK_TARGETS" --ttl-seconds 45 2>&1 | tee -a "logs/swarm_attempt_${attempt}.log"
 done
 
 echo "FAILED_AFTER_15_RETRIES"

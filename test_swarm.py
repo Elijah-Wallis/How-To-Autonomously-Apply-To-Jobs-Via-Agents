@@ -1,6 +1,9 @@
 import unittest
 import sys
 import types
+import json
+import tempfile
+from pathlib import Path
 
 playwright_module = types.ModuleType("playwright")
 playwright_async_api = types.ModuleType("playwright.async_api")
@@ -63,6 +66,24 @@ class SwarmTailoringTests(unittest.TestCase):
                 has_file_inputs=False,
             )
         )
+
+    def test_load_targets_file_accepts_valid_target_list(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "targets.json"
+            payload = [
+                {"company": "Mock Maritime", "url": "http://127.0.0.1:8765/company/mock/jobs"},
+                {"company": "Mock Towing", "url": "http://127.0.0.1:8765/company/tow/jobs"},
+            ]
+            path.write_text(json.dumps(payload), encoding="utf-8")
+            loaded = swarm.load_targets_file(path)
+            self.assertEqual(loaded, payload)
+
+    def test_load_targets_file_rejects_empty_target_list(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "targets.json"
+            path.write_text("[]", encoding="utf-8")
+            with self.assertRaises(ValueError):
+                swarm.load_targets_file(path)
         self.assertFalse(
             swarm.should_skip_request_submit(
                 "https://curtinmaritime.bamboohr.com/careers/215",

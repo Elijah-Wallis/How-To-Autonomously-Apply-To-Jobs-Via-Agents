@@ -3,4 +3,8 @@ __pycache__/
 *.pyc
 .DS_Store
 .state/autosync.pid
+.state/mock_ats_manual.pid
+mock_targets.json
+logs/mock_ats.log
+logs/mock_ats_manual.log
 proof/demo/
