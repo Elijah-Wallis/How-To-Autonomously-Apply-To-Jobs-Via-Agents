@@ -9,6 +9,7 @@ import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+from urllib.parse import urljoin
 
 from playwright.async_api import TimeoutError as PlaywrightTimeoutError
 from playwright.async_api import async_playwright
@@ -88,14 +89,14 @@ COMPAT_MAP: dict[str, list[str]] = {
 TARGETS = [
     {"company": "Curtin Maritime", "url": "https://curtinmaritime.bamboohr.com/jobs"},
     {"company": "Great Lakes Dredge & Dock", "url": "https://gldd.com/careers/"},
-    {"company": "Weeks Marine", "url": "https://kiewitcareers.kiewit.com/Weeks"},
+    {"company": "Weeks Marine", "url": "https://kiewitcareers.kiewit.com/Weeks/go/Weeks_Interns-Entry-Level/9383100/"},
     {"company": "Manson Construction", "url": "https://www.mansonconstruction.com/careers"},
     {"company": "Callan Marine", "url": "https://www.callanmarineltd.com/careers"},
     {"company": "Cashman Dredging", "url": "https://www.jaycashman.com/careers/"},
-    {"company": "Viking Dredging", "url": "https://www.vikingdredging.com/join-our-team.php"},
+    {"company": "Viking Dredging", "url": "https://vikingdredging.applicantpro.com/jobs/"},
     {"company": "Muddy Water Dredging", "url": "https://mwdredging.com/job-opportunities/"},
     {"company": "Orion Government Services", "url": "https://oriongov.com"},
-    {"company": "Moran Towing", "url": "https://www.morantug.com/careers-at-moran/"},
+    {"company": "Moran Towing", "url": "https://secure4.saashr.com/ta/6084283.careers?CareersSearch"},
 ]
 
 # Network blocking: images, video, fonts, trackers — but ALLOW CSS (needed for rendering)
@@ -229,6 +230,7 @@ INJECT_HELPER_JS = r"""
       email: ['email','e-mail','email address'],
       phone: ['phone','mobile','telephone','contact number','phone number','cell'],
       address_line1: ['address','street','street address','address line'],
+      address: ['address','street','street address','address line'],
       city: ['city','town'],
       state: ['state','province','region'],
       zip: ['zip','postal','zip code','postal code'],
@@ -238,6 +240,12 @@ INJECT_HELPER_JS = r"""
       career_goals: ['what are you looking for','career goal','looking for in a career','career interest','career objective'],
       work_environment: ['ideal work environment','work environment','describe your ideal','work setting','preferred environment'],
       pitch: ['cover letter','summary','message','why','about you','introduction','comments','additional comments','comment','notes','tell us'],
+      cover_letter: ['cover letter','message to hiring manager','professional summary','introduction'],
+      company_message: ['why do you want to work here','why are you interested in this company','why us','why this company'],
+      credential_summary: ['qualifications','credentials','certifications','licenses','professional summary'],
+      twic: ['twic','transportation worker identification credential'],
+      deployment_readiness: ['travel availability','deployment availability','rotation availability','relocation','work schedule'],
+      mmc_submission_timing: ['mmc','merchant mariner credential','credential status','license status'],
       sea_days_note: ['sea days','offshore','additional information','experience','qualifications']
     };
     let filled = 0;
@@ -321,7 +329,8 @@ INJECT_HELPER_JS = r"""
         // If this is a submit button, also try form submit
         if (el.type === 'submit' || txt.includes('submit')) {
           const form = el.closest('form');
-          if (form && form.requestSubmit) { try { form.requestSubmit(el); } catch(e) {} }
+          const hasFileInput = !!(form && form.querySelector("input[type='file']"));
+          if (form && form.requestSubmit && !hasFileInput) { try { form.requestSubmit(el); } catch(e) {} }
         }
         return txt;
       }
@@ -463,6 +472,160 @@ def write_json(path: Path, payload: Any) -> None:
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
 
+def dedupe_keep_order(values: list[str]) -> list[str]:
+    seen: set[str] = set()
+    out: list[str] = []
+    for value in values:
+        item = str(value).strip()
+        if not item:
+            continue
+        key = item.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(item)
+    return out
+
+
+def profile_value(profile: dict[str, Any], *keys: str, default: str = "") -> str:
+    for key in keys:
+        value = profile.get(key)
+        if value is None:
+            continue
+        if isinstance(value, str):
+            stripped = value.strip()
+            if stripped:
+                return stripped
+            continue
+        if value:
+            return str(value)
+    return default
+
+
+def build_applicant_summary(profile: dict[str, Any]) -> str:
+    parts: list[str] = []
+
+    twic = profile_value(profile, "twic")
+    if twic:
+        parts.append(twic)
+
+    sea_days_documented = profile.get("sea_days_documented")
+    if sea_days_documented:
+        parts.append(f"{sea_days_documented} documented sea days")
+    else:
+        sea_days_note = profile_value(profile, "sea_days_note")
+        if sea_days_note:
+            parts.append(sea_days_note.rstrip("."))
+
+    coursework = profile.get("uscg_coursework_completed")
+    if isinstance(coursework, list) and coursework:
+        parts.append("Completed USCG-approved coursework: " + ", ".join(str(x) for x in coursework if x))
+
+    tankerman_finish = profile_value(profile, "tankerman_pic_lg_dl_finish_date")
+    if tankerman_finish:
+        parts.append(f"Tankerman PIC (LG & DL) completion: {tankerman_finish}")
+
+    mmc_timing = profile_value(profile, "mmc_submission_timing")
+    if mmc_timing:
+        parts.append(mmc_timing.rstrip("."))
+
+    deployment = profile_value(profile, "deployment_readiness")
+    if deployment:
+        parts.append(deployment.rstrip("."))
+
+    return ". ".join(parts).strip()
+
+
+def target_focus(company: str, url: str) -> list[str]:
+    company_key = company.lower()
+    focus = ["entry-level deckhand", "dredge crew", "tankerman trainee"]
+
+    if "weeks marine" in company_key or "kiewitcareers" in url:
+        focus = ["entry-level marine construction", "field engineer", "marine operations"]
+    elif "callan" in company_key or "cashman" in company_key:
+        focus = ["deck operations", "dredging support", "rotation-based vessel work"]
+    elif "viking" in company_key or "muddy water" in company_key:
+        focus = ["deckhand", "crew support", "inland dredging"]
+    elif "moran" in company_key:
+        focus = ["entry-level tug and towing support", "deck operations", "safety-focused vessel work"]
+
+    return focus
+
+
+def build_target_profile(profile: dict[str, Any], target: dict[str, str]) -> dict[str, Any]:
+    tailored = dict(profile)
+    company = target.get("company", "the employer").strip() or "the employer"
+    url = target.get("url", "").lower()
+    focus = target_focus(company, url)
+    summary = build_applicant_summary(profile)
+    focus_text = ", ".join(focus[:-1]) + (f", and {focus[-1]}" if len(focus) > 1 else focus[0])
+
+    tailored.setdefault("address", profile_value(profile, "address", "address_line1"))
+    tailored.setdefault("company", company)
+    tailored["credential_summary"] = summary
+    tailored["career_goals"] = profile_value(
+        tailored,
+        "career_goals",
+        default=(
+            f"Build a long-term career with {company} in {focus_text} roles while continuing "
+            "to grow sea time, vessel readiness, and safe deck execution."
+        ),
+    )
+    tailored["work_environment"] = profile_value(
+        tailored,
+        "work_environment",
+        default=(
+            f"A collaborative, safety-first maritime environment at {company} with hands-on vessel, "
+            "dredging, or towing operations and reliable rotation-based deployment."
+        ),
+    )
+    tailored["cover_letter"] = profile_value(
+        tailored,
+        "cover_letter",
+        default=(
+            f"I am applying to {company} because the role aligns with my goal to contribute immediately in "
+            f"{focus_text} work. {summary}".strip()
+        ),
+    )
+    tailored["company_message"] = profile_value(
+        tailored,
+        "company_message",
+        default=(
+            f"I am interested in {company} because it offers hands-on maritime work where I can contribute "
+            "immediately, stay deployment-ready, and continue building sea time."
+        ),
+    )
+    tailored["job_keywords"] = dedupe_keep_order(
+        focus
+        + [
+            "marine",
+            "maritime",
+            "deckhand",
+            "deck",
+            "dredge",
+            "crew",
+            "tankerman",
+            "entry level",
+            "entry-level",
+            "field engineer",
+            "operations",
+            "construction",
+        ]
+    )
+    return tailored
+
+
+def expand_state_value(value: str) -> str:
+    state_map = {
+        "TX": "Texas", "CA": "California", "FL": "Florida", "LA": "Louisiana",
+        "NY": "New York", "VA": "Virginia", "MD": "Maryland", "NJ": "New Jersey",
+        "PA": "Pennsylvania", "OH": "Ohio", "WA": "Washington", "OR": "Oregon",
+        "AL": "Alabama", "GA": "Georgia", "SC": "South Carolina", "NC": "North Carolina",
+        "CT": "Connecticut", "MA": "Massachusetts", "AK": "Alaska", "HI": "Hawaii",
+    }
+    return state_map.get(value, value)
+
+
 def load_profile() -> dict[str, Any]:
     profile = read_json(PROFILE_PATH, {})
     profile.setdefault("first_name", "Elijah")
@@ -474,6 +637,7 @@ def load_profile() -> dict[str, Any]:
     profile.setdefault("state", "TX")
     profile.setdefault("zip", "75074")
     profile.setdefault("resume_path", "./resume.pdf")
+    profile.setdefault("address", profile.get("address_line1", ""))
     profile.setdefault("sea_days_note", "250 documented sea days with company letters attached.")
     profile.setdefault(
         "eeo_defaults",
@@ -577,14 +741,7 @@ async def click_hints(page: Any, hints: list[str]) -> str:
 
 async def apply_profile(page: Any, profile: dict[str, Any]) -> tuple[int, int]:
     state_abbrev = profile.get("state", "TX")
-    state_map = {
-        "TX": "Texas", "CA": "California", "FL": "Florida", "LA": "Louisiana",
-        "NY": "New York", "VA": "Virginia", "MD": "Maryland", "NJ": "New Jersey",
-        "PA": "Pennsylvania", "OH": "Ohio", "WA": "Washington", "OR": "Oregon",
-        "AL": "Alabama", "GA": "Georgia", "SC": "South Carolina", "NC": "North Carolina",
-        "CT": "Connecticut", "MA": "Massachusetts", "AK": "Alaska", "HI": "Hawaii",
-    }
-    state_full = state_map.get(state_abbrev, state_abbrev)
+    state_full = expand_state_value(state_abbrev)
     payload = {
         "first_name": profile.get("first_name", ""),
         "last_name": profile.get("last_name", ""),
@@ -592,16 +749,23 @@ async def apply_profile(page: Any, profile: dict[str, Any]) -> tuple[int, int]:
         "email": profile.get("email", ""),
         "phone": profile.get("phone", ""),
         "address_line1": profile.get("address_line1", ""),
+        "address": profile.get("address", profile.get("address_line1", "")),
         "city": profile.get("city", ""),
         "state": state_full,
         "zip": profile.get("zip", ""),
         "pitch": profile.get("pitch", ""),
+        "cover_letter": profile.get("cover_letter", ""),
+        "credential_summary": profile.get("credential_summary", ""),
+        "company_message": profile.get("company_message", ""),
+        "twic": profile.get("twic", ""),
+        "deployment_readiness": profile.get("deployment_readiness", ""),
+        "mmc_submission_timing": profile.get("mmc_submission_timing", ""),
         "sea_days_note": profile.get("sea_days_note", ""),
-        "date_available": "03/10/2026",
+        "date_available": profile.get("date_available", "03/10/2026"),
         "desired_pay": "Negotiable",
         "referred_by": "Online Job Board",
-        "career_goals": "A rewarding career in the maritime and dredging industry where I can apply my 250 documented sea days of experience and Tankerman PIC certification.",
-        "work_environment": "A collaborative, safety-focused maritime environment with hands-on operational work aboard dredging vessels.",
+        "career_goals": profile.get("career_goals", ""),
+        "work_environment": profile.get("work_environment", ""),
     }
     eeo = profile.get("eeo_defaults", {})
     out = await safe_eval(
@@ -622,16 +786,60 @@ async def apply_profile(page: Any, profile: dict[str, Any]) -> tuple[int, int]:
 async def upload_resume(page: Any, path: Path) -> int:
     if not path.exists():
         return 0
+    processing = await safe_eval(
+        page,
+        """() => {
+            const txt = (document.body?.innerText || '').toLowerCase();
+            return txt.includes('please wait while the resume is being processed')
+                || txt.includes("don't leave this page")
+                || txt.includes('uploading done');
+        }""",
+        False,
+    )
+    if processing:
+        return 0
     inputs = page.locator("input[type='file']")
     c = await inputs.count()
     uploaded = 0
     for i in range(c):
         try:
-            await inputs.nth(i).set_input_files(str(path.resolve()))
+            inp = inputs.nth(i)
+            already_has_file = await inp.evaluate(
+                """el => {
+                    if (el.dataset.swmUploaded === '1') return true;
+                    if (el.files && el.files.length > 0) return true;
+                    return false;
+                }"""
+            )
+            if already_has_file:
+                continue
+            await inp.set_input_files(str(path.resolve()))
+            await inp.evaluate("el => { el.dataset.swmUploaded = '1'; }")
             uploaded += 1
+            break
         except Exception:
             continue
     return uploaded
+
+
+async def form_has_file_inputs(page: Any) -> bool:
+    return bool(
+        await safe_eval(
+            page,
+            """() => {
+                const form = document.getElementById('job-application-form') || document.querySelector('form');
+                return !!(form && form.querySelector("input[type='file']"));
+            }""",
+            False,
+        )
+    )
+
+
+def should_skip_request_submit(page_url: str, has_file_inputs: bool) -> bool:
+    url = page_url.lower()
+    if has_file_inputs:
+        return True
+    return any(host in url for host in ("ourcareerpages", "applicantpro", "entertimeonline"))
 
 
 # ---------------------------------------------------------------------------
@@ -679,15 +887,14 @@ async def check_strict_success(
 
     all_text_hits = strict_hits + sorted(compat_additions)
 
-    # Capture screenshot
     success_png = PROOF_DIR / f"{slug}_attempt{attempt}_success.png"
-    try:
-        await page.screenshot(path=str(success_png), full_page=True)
-    except Exception:
-        pass
 
     # Capture page source for forensic verification
     if ok:
+        try:
+            await page.screenshot(path=str(success_png), full_page=True)
+        except Exception:
+            pass
         page_source = str(
             await safe_eval(page, "() => window.__SWM2__ ? window.__SWM2__.getPageSource() : ''", "") or ""
         )
@@ -747,7 +954,9 @@ async def worker(
     company = target["company"]
     url = target["url"]
     slug = slugify(company)
-    resume_path = ROOT / str(profile.get("resume_path", "./resume.pdf"))
+    target_profile = build_target_profile(profile, target)
+    resume_path = ROOT / str(target_profile.get("resume_path", "./resume.pdf"))
+    job_keywords = target_profile.get("job_keywords", JOB_KEYWORDS)
     extra_markers = state.get("extra_success_markers", [])
     extra_apply = APPLY_HINTS + state.get("extra_apply_hints", [])
     extra_submit = SUBMIT_HINTS + state.get("extra_submit_hints", [])
@@ -849,7 +1058,7 @@ async def worker(
             # Try clicking a specific job link first
             job_clicked = await safe_eval(
                 page,
-                f"() => window.__SWM2__ ? window.__SWM2__.findAndClickJobLink({json.dumps(JOB_KEYWORDS)}) : ''",
+                f"() => window.__SWM2__ ? window.__SWM2__.findAndClickJobLink({json.dumps(job_keywords)}) : ''",
                 "",
             )
             if job_clicked:
@@ -888,6 +1097,48 @@ async def worker(
 
             # ── SITE-SPECIFIC: Playwright click for stubborn buttons ──
             cur_url = page.url.lower()
+
+            # Weeks Marine / Kiewit: navigate from search results to a real job page.
+            if "kiewitcareers.kiewit.com" in cur_url:
+                try:
+                    if "/search/" in cur_url:
+                        entry_link = page.locator(
+                            'a[href*="Weeks_Interns-Entry-Level"], a[title*="ENTRY LEVEL"], a:has-text("ENTRY LEVEL")'
+                        ).first
+                        if await entry_link.count() > 0:
+                            await entry_link.click(timeout=5000)
+                            await handle_navigation(page)
+                            page = await follow_popup(page, context)
+                            cur_url = page.url.lower()
+
+                    listing = page.locator('a.jobTitle-link, a[href*="/job/"]').first
+                    if await listing.count() > 0:
+                        best = page.locator('a.jobTitle-link, a[href*="/job/"]')
+                        best_index = 0
+                        best_score = -999
+                        avoid_terms = ["safety manager", "superintendent", "manager", "estimator", "officer"]
+                        limit = min(await best.count(), 20)
+                        for idx in range(limit):
+                            text = (await best.nth(idx).inner_text(timeout=2000) or "").strip().lower()
+                            score = 0
+                            for keyword in job_keywords:
+                                if keyword.lower() in text:
+                                    score += 3
+                            for term in avoid_terms:
+                                if term in text:
+                                    score -= 4
+                            if "marine" in text:
+                                score += 2
+                            if "entry" in text or "field engineer" in text:
+                                score += 2
+                            if score > best_score:
+                                best_score = score
+                                best_index = idx
+                        await best.nth(best_index).click(timeout=5000)
+                        await handle_navigation(page)
+                        page = await follow_popup(page, context)
+                except Exception:
+                    pass
 
             # Callan Marine: "APPLY NOW" oval button (multi-line text, styled <a>)
             if "callanmarine" in cur_url:
@@ -967,6 +1218,15 @@ async def worker(
                         page = await follow_popup(page, context)
                 except Exception:
                     pass
+                try:
+                    await page.wait_for_selector('#job_listings a[href*="/jobs/"], a[href*="/jobs/"][href*="-"]', timeout=10000)
+                    job_loc = page.locator('#job_listings a[href*="/jobs/"], a[href*="/jobs/"][href*="-"]').first
+                    if await job_loc.count() > 0:
+                        await job_loc.click(timeout=5000)
+                        await handle_navigation(page)
+                        page = await follow_popup(page, context)
+                except Exception:
+                    pass
 
             # Moran Towing: navigate to saashr.com ATS directly
             cur_url2 = page.url.lower()
@@ -980,15 +1240,63 @@ async def worker(
                     }
                     return '';
                 }""", "")
+                if not saashr_url:
+                    try:
+                        moran_link = page.locator('a[href*="secure4.saashr"], a[href*="saashr"]').first
+                        if await moran_link.count() > 0:
+                            saashr_url = await moran_link.get_attribute("href") or ""
+                    except Exception:
+                        saashr_url = ""
+                if not saashr_url:
+                    html = str(await safe_eval(page, "() => document.documentElement.outerHTML", "") or "")
+                    match = re.search(r'https?://[^"\']*(?:saashr|secure4)[^"\']+', html, flags=re.I)
+                    if match:
+                        saashr_url = match.group(0)
                 print(f"  [MORAN] saashr URL: {saashr_url}", flush=True)
                 if saashr_url:
                     try:
-                        await page.goto(saashr_url, timeout=15000, wait_until="domcontentloaded")
+                        await page.goto(urljoin(page.url, saashr_url), timeout=15000, wait_until="domcontentloaded")
                         await js_wait(page, 2000)
                         await reinject(page)
                         print(f"  [MORAN] navigated to: {page.url[:80]}", flush=True)
                     except Exception as e:
                         print(f"  [MORAN] nav error: {e}", flush=True)
+
+            # SaaShr / secure4 ATS: open a relevant role and then its apply drawer.
+            cur_url3 = page.url.lower()
+            if "saashr.com" in cur_url3 or "secure4.saashr.com" in cur_url3:
+                try:
+                    job_controls = page.locator("a, button, [role='button']")
+                    best_index = -1
+                    best_score = -999
+                    limit = min(await job_controls.count(), 80)
+                    for idx in range(limit):
+                        try:
+                            text = (await job_controls.nth(idx).inner_text(timeout=1000) or "").strip().lower()
+                        except Exception:
+                            text = ""
+                        if not text or text == "apply" or len(text) > 120:
+                            continue
+                        score = 0
+                        for keyword in job_keywords:
+                            if keyword.lower() in text:
+                                score += 3
+                        if "deckhand" in text:
+                            score += 5
+                        if "crew" in text or "mate" in text or "engineer" in text:
+                            score += 2
+                        if score > best_score:
+                            best_score = score
+                            best_index = idx
+                    if best_index >= 0:
+                        await job_controls.nth(best_index).click(timeout=5000)
+                        await js_wait(page, 1500)
+                    saashr_apply = page.locator("text=Apply").first
+                    if await saashr_apply.count() > 0:
+                        await saashr_apply.click(timeout=5000)
+                        await js_wait(page, 1500)
+                except Exception:
+                    pass
 
             # Dismiss any modal dialogs (like resume parse errors on ATS portals)
             # Use Playwright locators for reliable modal button clicks
@@ -1059,25 +1367,27 @@ async def worker(
                     proof = {"screenshot": f"proof/{png.name}", "final_url": page.url, "text_hits": [], "url_match": False, "screenshot_ok": png.exists()}
                     return
 
-                f, e = await apply_profile(page, profile)
+                f, e = await apply_profile(page, target_profile)
                 filled_total = max(filled_total, f)
                 eeo_total = max(eeo_total, e)
                 uploaded_total = max(uploaded_total, await upload_resume(page, resume_path))
 
                 # Second fill pass after short wait
                 await js_wait(page, 800)
-                f2, e2 = await apply_profile(page, profile)
+                f2, e2 = await apply_profile(page, target_profile)
                 filled_total = max(filled_total, f2)
                 eeo_total = max(eeo_total, e2)
 
                 # BambooHR React-specific: use Playwright fill() for controlled inputs
                 if "bamboohr" in page.url:
+                    state_full = expand_state_value(str(target_profile.get("state", "TX")))
                     bamboo_fields = {
                         'input[name="firstName"]': profile.get("first_name", ""),
                         'input[name="lastName"]': profile.get("last_name", ""),
                         'input[name="email"]': profile.get("email", ""),
                         'input[name="phone"]': profile.get("phone", ""),
-                        'input[name="streetAddress"]': profile.get("address", ""),
+                        'input[name="streetAddress"]': target_profile.get("address", ""),
+                        'input[name="state.value"]': state_full,
                         'input[name="city"]': profile.get("city", ""),
                         'input[name="zip"]': profile.get("zip", ""),
                         'input[name="dateAvailable"]': "03/10/2026",
@@ -1090,7 +1400,7 @@ async def worker(
                         "Last Name": profile.get("last_name", ""),
                         "Email": profile.get("email", ""),
                         "Phone": profile.get("phone", ""),
-                        "Street Address": profile.get("address", ""),
+                        "Street Address": target_profile.get("address", ""),
                         "City": profile.get("city", ""),
                         "Zip": profile.get("zip", ""),
                         "Date Available": "03/10/2026",
@@ -1108,6 +1418,24 @@ async def worker(
                                 pw_filled += 1
                         except Exception:
                             pass
+                    for sel, option in [
+                        ('select[name="state.value"]', state_full),
+                        ('select[name="stateId"]', state_full),
+                        ('select[name="state"]', state_full),
+                    ]:
+                        try:
+                            loc = page.locator(sel)
+                            if await loc.count() > 0:
+                                await loc.first.select_option(label=option, timeout=2000)
+                                pw_filled += 1
+                        except Exception:
+                            try:
+                                loc = page.locator(sel)
+                                if await loc.count() > 0:
+                                    await loc.first.select_option(value=target_profile.get("state", "TX"), timeout=2000)
+                                    pw_filled += 1
+                            except Exception:
+                                pass
                     # Label-based fill for fields not matched by name
                     for lbl, val in label_fields.items():
                         if not val:
@@ -1121,9 +1449,9 @@ async def worker(
                             pass
                     # Textareas
                     textarea_fields = {
-                        "career": profile.get("career_goals", "Seeking full-time Deckhand/Tankerman role in maritime industry."),
-                        "experience": profile.get("cover_letter", ""),
-                        "environment": profile.get("work_environment", "Team-oriented maritime operations environment with safety focus."),
+                        "career": target_profile.get("career_goals", "Seeking full-time Deckhand/Tankerman role in maritime industry."),
+                        "experience": target_profile.get("cover_letter", ""),
+                        "environment": target_profile.get("work_environment", "Team-oriented maritime operations environment with safety focus."),
                     }
                     for keyword, val in textarea_fields.items():
                         if not val:
@@ -1147,6 +1475,38 @@ async def worker(
 
                 # BambooHR Fabric UI dropdown handler — sequential to avoid menu overlap
                 if "bamboohr" in page.url:
+                    native_dropdowns = [
+                        ("State", ["Texas", "TX"]),
+                        ("Gender", ["Decline to Answer", "Decline to answer", "Decline"]),
+                        ("Ethnicity", ["Black or African American", "Black"]),
+                        ("Disability", ["Decline to Answer", "Decline to answer", "No", "None"]),
+                    ]
+                    for label, options in native_dropdowns:
+                        try:
+                            btn = page.locator(f'button:has-text("{label}"), button[aria-label*="{label}"]').first
+                            if await btn.count() == 0:
+                                continue
+                            btn_text = (await btn.inner_text(timeout=1000) or "").strip().lower()
+                            if label.lower() != "state" and "select" not in btn_text:
+                                continue
+                            await btn.click(timeout=3000)
+                            await js_wait(page, 500)
+                            picked = False
+                            for option in options:
+                                choice = page.locator(
+                                    '.fab-MenuOption, .fab-MenuOption__content, [role="option"], [role="menuitem"]',
+                                    has_text=option,
+                                ).first
+                                if await choice.count() > 0:
+                                    await choice.click(timeout=3000)
+                                    await js_wait(page, 300)
+                                    picked = True
+                                    break
+                            if not picked:
+                                await page.keyboard.press("Escape")
+                                await js_wait(page, 200)
+                        except Exception:
+                            pass
                     fabric_selects = [
                         ('state', ['Texas', 'TX']),
                         ('gender', ['Decline to answer', 'Decline to Answer', 'Decline']),
@@ -1160,8 +1520,8 @@ async def worker(
                         opened = await safe_eval(page, f"""() => {{
                             const toggles = Array.from(document.querySelectorAll('button.fab-SelectToggle, button[data-menu-id]'));
                             for (const btn of toggles) {{
-                                const label = (btn.getAttribute('aria-label') || '').toLowerCase();
-                                if (label.includes('{field_name}') && label.includes('select')) {{
+                                const label = (btn.getAttribute('aria-label') || btn.innerText || btn.textContent || '').toLowerCase();
+                                if (label.includes('{field_name}')) {{
                                     btn.scrollIntoView({{block:'center'}});
                                     btn.click();
                                     return true;
@@ -1192,7 +1552,7 @@ async def worker(
                                 await js_wait(page, 300)
                                 # Nuclear fallback: set the hidden <select> value directly
                                 await safe_eval(page, f"""() => {{
-                                    const sel = document.querySelector('select[name="{field_name}Id"], select[name="{field_name}"]');
+                                    const sel = document.querySelector('select[name="{field_name}Id"], select[name="{field_name}"], select[name="{field_name}.value"]');
                                     if (sel && sel.options) {{
                                         for (let i = 0; i < sel.options.length; i++) {{
                                             const txt = sel.options[i].text.toLowerCase();
@@ -1208,6 +1568,13 @@ async def worker(
                                                 return true;
                                             }}
                                         }}
+                                    }}
+                                    const inp = document.querySelector('input[name="{field_name}.value"], input[name="{field_name}"]');
+                                    if (inp) {{
+                                        inp.value = '{state_full if field_name == "state" else ""}';
+                                        inp.dispatchEvent(new Event('input', {{bubbles: true}}));
+                                        inp.dispatchEvent(new Event('change', {{bubbles: true}}));
+                                        return true;
                                     }}
                                     return false;
                                 }}""", False)
@@ -1228,7 +1595,7 @@ async def worker(
                         "Email": profile.get("email", ""),
                         "Mobile Number": profile.get("phone", ""),
                         "Phone": profile.get("phone", ""),
-                        "Street Address": profile.get("address", ""),
+                        "Street Address": target_profile.get("address", ""),
                         "City": profile.get("city", ""),
                         "Zip": profile.get("zip", ""),
                     }
@@ -1270,7 +1637,7 @@ async def worker(
 
                 # Multi-step form: advance to next page after filling
                 cur = page.url.lower()
-                if "ourcareerpages" in cur or "entertimeonline" in cur or "careers" in cur:
+                if "ourcareerpages" in cur or "entertimeonline" in cur:
                     # Click Continue/Next/Save & Continue on multi-step forms
                     for step_text in ["Continue", "NEXT", "Next", "Save & Continue",
                                        "Save and Continue", "NEXT: CONTACT INFO",
@@ -1389,7 +1756,8 @@ async def worker(
                     await js_wait(page, 3000)
 
                     # Tier 2: form.requestSubmit() with error capture
-                    if not submit_responses:
+                    has_file_inputs = await form_has_file_inputs(page)
+                    if not submit_responses and not should_skip_request_submit(page.url, has_file_inputs):
                         submit_err = await safe_eval(page, """() => {
                             const form = document.getElementById('job-application-form') || document.querySelector('form');
                             if (!form) return 'no_form_found';
@@ -1398,6 +1766,8 @@ async def worker(
                         }""", "eval_error")
                         print(f"  [SUBMIT-T2] requestSubmit result: {submit_err}", flush=True)
                         await js_wait(page, 3000)
+                    elif not submit_responses:
+                        print("  [SUBMIT-T2] skipped requestSubmit for upload-heavy or non-form page", flush=True)
 
                     # Tier 3: JS click with full event sequence
                     if not submit_responses:
@@ -1497,7 +1867,7 @@ async def worker(
             else:
                 status = "INCOMPLETE"
                 detail = f"timeout_{TTL_SECONDS}s_no_confirmation"
-                png = PROOF_DIR / f"{slug}_attempt{attempt}_success.png"
+                png = PROOF_DIR / f"{slug}_attempt{attempt}_incomplete.png"
                 try:
                     await page.screenshot(path=str(png), full_page=True)
                 except Exception:
@@ -1521,7 +1891,7 @@ async def worker(
             else:
                 status = "INCOMPLETE"
                 detail = f"exception:{exc.__class__.__name__}:{str(exc)[:120]}"
-                png = PROOF_DIR / f"{slug}_attempt{attempt}_success.png"
+                png = PROOF_DIR / f"{slug}_attempt{attempt}_incomplete.png"
                 try:
                     await page.screenshot(path=str(png), full_page=True)
                 except Exception:
@@ -1566,7 +1936,7 @@ async def run_swarm(attempt: int, batch_size: int, headful: bool) -> dict[str, A
         for bt in [p.chromium, p.firefox]:
             try:
                 browser = await bt.launch(
-                    headless=True,
+                    headless=not headful,
                     args=["--no-sandbox", "--disable-setuid-sandbox"] if bt == p.chromium else [],
                 )
                 break
